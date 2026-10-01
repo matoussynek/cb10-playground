@@ -1,0 +1,19 @@
+# Vendor app binaries and decompiler output: never commit these
+*.apk
+*.xapk
+*.apks
+jadx*/
+decompiled/
+
+# Local tooling and output
+node_modules/
+_site/
+*.log
+cb10-log-*.txt
+cb10-log-*.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

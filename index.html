@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#e9e8e3">
+  <title>CB10 Controller</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div id="unsupported" class="fullscreen" hidden>
+    <div class="fullscreen-box">
+      <div class="big-letter" aria-hidden="true">!</div>
+      <h1 id="unsupportedTitle">This browser can't talk to the hub</h1>
+      <div id="unsupportedText"></div>
+      <p><a href="?mock=1">Try the pretend hub instead</a></p>
+    </div>
+  </div>
+
+  <header class="bar">
+    <span class="brand" aria-label="CB10">CB<b>10</b></span>
+    <button id="connectBtn" class="conn" type="button" data-state="disconnected">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="connLabel">Connect</span>
+    </button>
+    <button id="panicBtn" class="stop-round" type="button" aria-label="Stop everything"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg></button>
+  </header>
+
+  <div id="mockBanner" class="mock-banner" hidden>
+    <strong>PRETEND HUB</strong>
+    <span id="mockHub" class="mono"></span>
+    <button id="mockDrop" type="button" class="chip">Drop connection</button>
+  </div>
+  <p id="lastError" class="toast" role="alert" hidden></p>
+
+  <main>
+    <section id="viewDrive" class="view" role="tabpanel" aria-labelledby="navDrive">
+      <div id="connectCard" class="card cta" hidden>
+        <p class="cta-title">Turn on the hub, then tap</p>
+        <button id="connectBig" type="button" class="key key-blue key-wide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Connect</button>
+      </div>
+      <div id="motorPanels" class="drive"></div>
+      <button id="stopAllBtn" type="button" class="key key-red key-wide"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg> STOP</button>
+      <p id="controlHint" class="hint center"></p>
+    </section>
+
+    <section id="viewCode" class="view" role="tabpanel" aria-labelledby="navCode" hidden>
+      <div class="runbar">
+        <button id="progRun" type="button" class="key key-green" aria-label="Run program"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></button>
+        <button id="progStop" type="button" class="key key-red" aria-label="Stop program"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg></button>
+        <span id="progStatus" class="display" role="status" aria-live="polite"></span>
+      </div>
+      <div id="palette" class="palette" aria-label="Add a block"></div>
+      <fieldset id="progEditor" class="editor">
+        <legend class="sr-only">Your program</legend>
+        <div id="progSteps" class="script"></div>
+      </fieldset>
+      <details class="card fold">
+        <summary>My programs</summary>
+        <div class="fields">
+          <div class="row">
+            <input id="progName" type="text" autocomplete="off" placeholder="Name your program" aria-label="Program name">
+            <button id="progSave" type="button" class="key key-small">Save</button>
+          </div>
+          <div id="progSavedList" class="saved-list"></div>
+          <div class="row">
+            <button id="progNew" type="button" class="key key-small">New</button>
+            <button id="progExport" type="button" class="key key-small">Export</button>
+            <label class="key key-small file-btn">Import <input id="progImport" type="file" accept="application/json,.json"></label>
+          </div>
+        </div>
+      </details>
+      <p class="hint center">Keep this screen open while a program runs. It stops if you switch apps.</p>
+    </section>
+
+    <section id="viewSettings" class="view" role="tabpanel" aria-labelledby="navSettings" hidden>
+      <div class="card">
+        <h2 class="label">Hub</h2>
+        <p id="deviceName" class="display wide">No hub</p>
+        <p id="availability" class="hint"></p>
+        <div class="row">
+          <button id="reconnectBtn" type="button" class="key key-small">Reconnect</button>
+          <button id="disconnectBtn" type="button" class="key key-small">Disconnect</button>
+          <button id="pickBtn" type="button" class="key key-small">Find another hub</button>
+        </div>
+        <h3 class="label">Channel</h3>
+        <div class="row">
+          <div id="channelButtons" class="segmented" role="group" aria-label="Channel"></div>
+          <button id="detectChannel" type="button" class="key key-small">Detect</button>
+        </div>
+        <label class="check"><input id="autoDetect" type="checkbox"> Find the channel when connecting</label>
+      </div>
+
+      <div class="card">
+        <h2 class="label">Motors</h2>
+        <div id="motorSettings" class="motor-settings"></div>
+        <label class="check"><input id="springBack" type="checkbox"> Sliders jump back to 0 when let go</label>
+        <p class="hint">Keyboard: W / S motor A, I / K motor B, Space stops.</p>
+      </div>
+
+      <details class="card fold">
+        <summary>Connection options</summary>
+        <div class="fields">
+          <label>Hub name starts with <input id="namePrefix" type="text" autocomplete="off" spellcheck="false"></label>
+          <label class="check"><input id="acceptAll" type="checkbox"> Show all Bluetooth devices when searching</label>
+          <label>Extra service UUIDs (comma separated)
+            <input id="extraServices" type="text" autocomplete="off" spellcheck="false" placeholder="none">
+          </label>
+          <label class="check"><input id="autoReconnect" type="checkbox"> Reconnect automatically</label>
+        </div>
+      </details>
+
+      <details class="card fold">
+        <summary>Developer</summary>
+        <div class="fields">
+          <button id="openProbe" type="button" class="key key-small">Open probe console</button>
+          <label class="inline">Max coalesced writes per second <input id="maxWps" type="number" min="1" max="50" inputmode="numeric"></label>
+          <label class="check"><input id="allowGA" type="checkbox"> Allow writes to Generic Access (0x1800)</label>
+          <details class="inner">
+            <summary>Last reply from the hub</summary>
+            <p id="lastReply" class="mono packet">none yet</p>
+          </details>
+        </div>
+      </details>
+    </section>
+
+    <section id="viewProbe" class="view probe" role="tabpanel" hidden>
+      <div class="row probe-head">
+        <button id="closeProbe" type="button" class="key key-small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> Settings</button>
+        <h2 class="label">Probe console</h2>
+      </div>
+      <div id="ticker" class="ticker mono" aria-hidden="true"></div>
+      <details open>
+        <summary>GATT explorer</summary>
+        <div class="row">
+          <button id="subscribeAllBtn" type="button" disabled>Subscribe all</button>
+          <button id="readAllBtn" type="button" disabled>Read all</button>
+        </div>
+        <div id="gattTree" class="tree"><p class="hint">Connect to see services.</p></div>
+      </details>
+
+      <details open id="secSender">
+        <summary>Hex sender</summary>
+        <div class="fields">
+          <div class="target">
+            <label>Characteristic <select id="sendTarget"></select></label>
+            <label>Write type <select id="sendMode"></select></label>
+          </div>
+          <label>Hex bytes <input id="sendHex" class="mono" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="01 02 ff"></label>
+          <p id="sendPreview" class="hint mono" aria-live="polite"></p>
+        </div>
+        <div class="row">
+          <button id="sendBtn" type="button" class="btn-primary">Send</button>
+          <button id="sendToGrid" type="button">To byte grid</button>
+          <button id="clearHistory" type="button">Clear history</button>
+        </div>
+        <h3>History <span class="hint">(tap to resend)</span></h3>
+        <ul id="history" class="history"></ul>
+      </details>
+
+      <details open id="secGrid">
+        <summary>Byte grid</summary>
+        <div class="fields">
+          <div class="target">
+            <label>Characteristic <select id="gridTarget"></select></label>
+            <label>Write type <select id="gridMode"></select></label>
+          </div>
+          <div class="row">
+            <label class="inline">Bytes <input id="gridN" type="number" min="1" max="20" inputmode="numeric"></label>
+            <label class="check"><input id="gridAuto" type="checkbox"> Auto-send on change</label>
+          </div>
+        </div>
+        <div id="gridCells" class="grid"></div>
+        <p class="mono packet" id="gridHex" aria-live="polite"></p>
+        <div class="row">
+          <button id="gridSend" type="button" class="btn-primary">Send</button>
+          <button id="gridZero" type="button">Zero all</button>
+          <button id="gridFromSender" type="button">From hex sender</button>
+          <button id="gridToSweep" type="button">To sweeper</button>
+        </div>
+      </details>
+
+      <details id="secSweep">
+        <summary>Byte sweeper</summary>
+        <p class="hint">Sends the template repeatedly, changing one byte each time. Max <span id="sweepMax"></span> packets per run, min delay 100 ms. Lift the wheels first.</p>
+        <div class="fields">
+          <div class="target">
+            <label>Characteristic <select id="sweepTarget"></select></label>
+            <label>Write type <select id="sweepMode"></select></label>
+          </div>
+          <label>Template hex <input id="sweepTemplate" class="mono" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="00 00 00 00"></label>
+          <div class="nums">
+            <label>Byte index <input id="sweepIndex" type="text" inputmode="numeric" value="0"></label>
+            <label>Start <input id="sweepStart" type="text" value="0"></label>
+            <label>End <input id="sweepEnd" type="text" value="0x10"></label>
+            <label>Step <input id="sweepStep" type="text" value="1"></label>
+            <label>Delay ms <input id="sweepDelay" type="number" min="100" step="50" value="300"></label>
+          </div>
+          <label class="check"><input id="sweepStopOnNew" type="checkbox" checked> Stop when a notification differs from the last one seen on that characteristic before the sweep (any reply counts if there was none)</label>
+          <label class="check"><input id="sweepStopAfter" type="checkbox" checked> Send the panic stop packet when the sweep ends or is aborted</label>
+          <p id="sweepPlan" class="hint mono" aria-live="polite"></p>
+        </div>
+        <div class="row">
+          <button id="sweepRun" type="button" class="btn-primary">Start sweep…</button>
+        </div>
+      </details>
+
+      <details open id="secLog">
+        <summary>Live log</summary>
+        <div class="row">
+          <label class="inline">Filter <select id="logFilter"></select></label>
+          <button id="logPause" type="button" aria-pressed="false">Pause</button>
+          <button id="logClear" type="button">Clear</button>
+        </div>
+        <div class="row">
+          <button id="logCopy" type="button">Copy</button>
+          <button id="logTxt" type="button">Download .txt</button>
+          <button id="logJson" type="button">Download .json</button>
+        </div>
+        <p class="hint">W→ write, R← read, N← notification, i info, ! error. "(changed)" marks a notification that differs from the previous one on that characteristic. Bytes shown as <span class="mono">[len] hex | decimal | "ascii"</span>.</p>
+        <div id="log" class="log mono" tabindex="0" aria-label="Log"></div>
+      </details>
+
+      <details id="secPanic">
+        <summary>Panic stop packet</summary>
+        <p class="hint">Optional extra packet sent after the built-in stop-all (STOP, Disconnect, page hidden). Not needed for the CB10: the stop-all frames are built in.</p>
+        <div class="fields">
+          <div class="target">
+            <label>Characteristic <select id="panicTarget"></select></label>
+            <label>Write type <select id="panicMode"></select></label>
+          </div>
+          <label>Stop packet hex <input id="panicHex" class="mono" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="not set"></label>
+          <p id="panicStatus" class="hint" aria-live="polite"></p>
+        </div>
+        <div class="row">
+          <button id="panicSave" type="button" class="btn-primary">Save</button>
+          <button id="panicTest" type="button">Send now</button>
+        </div>
+      </details>
+
+      <details id="secNotes">
+        <summary>Session notes</summary>
+        <p class="hint">Saved in this browser and included in log exports.</p>
+        <textarea id="notes" rows="6" placeholder="e.g. FFF2 + 3 bytes makes motor A twitch…"></textarea>
+      </details>
+
+    </section>
+  </main>
+
+  <nav class="dock" role="tablist" aria-label="Mode">
+    <button id="navDrive" type="button" role="tab" aria-controls="viewDrive" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5" stroke="currentColor" stroke-width="2.5"/></svg><span>Drive</span></button>
+    <button id="navCode" type="button" role="tab" aria-controls="viewCode" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5a2 2 0 0 1 2-2h5l1.5 2H19a2 2 0 0 1 2 2v3H3z"/><path d="M3 13h18v4a2 2 0 0 1-2 2h-7.5L10 21H5a2 2 0 0 1-2-2z"/></svg><span>Code</span></button>
+    <button id="navSettings" type="button" role="tab" aria-controls="viewSettings" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2h3.4l.5 2.6 1.9.8 2.2-1.5 2.4 2.4-1.5 2.2.8 1.9 2.6.5v3.4l-2.6.5-.8 1.9 1.5 2.2-2.4 2.4-2.2-1.5-1.9.8-.5 2.6h-3.4l-.5-2.6-1.9-.8-2.2 1.5-2.4-2.4 1.5-2.2-.8-1.9L2 13.7v-3.4l2.6-.5.8-1.9-1.5-2.2 2.4-2.4 2.2 1.5 1.9-.8zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/></svg><span>Settings</span></button>
+  </nav>
+
+  <div id="sweepBar" class="sweep-bar" hidden>
+    <div class="sweep-info">
+      <span id="sweepProgressText" class="mono"></span>
+      <progress id="sweepProgress" max="1" value="0"></progress>
+    </div>
+    <button id="sweepAbort" type="button" class="key key-red">Abort</button>
+  </div>
+</body>
+</html>
