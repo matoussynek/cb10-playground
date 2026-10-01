@@ -81,3 +81,20 @@ test('rapid input is coalesced', async () => {
   assert.ok(hub.writes.every(w => w.uuid === CMD_KEY.split('/')[1]));
   await teardown(ble);
 });
+
+test('hiding a motor stops it, and both can never be hidden', async () => {
+  const { ble, motors, hub } = await setup({ channel: 1 });
+  motors.set({ A: 80 });
+  await sleep(120);
+  assert.equal(hub.motors.A, 0x80 + 84); // 80 % spread over the 20 % dead zone
+  motors.configure('A', { hidden: true });
+  await sleep(120);
+  assert.equal(motors.cfg.A.hidden, true);
+  assert.equal(motors.speeds.A, 0);
+  assert.equal(hub.motors.A, 0x80);
+  motors.configure('B', { hidden: true });
+  assert.equal(motors.cfg.B.hidden, false, 'the last visible motor stays visible');
+  motors.configure('A', { hidden: false });
+  assert.equal(motors.cfg.A.hidden, false);
+  await teardown(ble);
+});

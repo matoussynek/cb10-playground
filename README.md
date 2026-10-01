@@ -4,10 +4,12 @@ A static site that talks to the "CB10" Lego-WeDo-style motor hub straight from t
 
 Three screens, picked from the dock at the bottom:
 
-- **Drive**: a big ▲ / ▼ key and a slider for each motor (A blue, B green), plus STOP.
+- **Drive**: a big ▲ / ▼ key and a slider for each motor (A blue, B green), plus STOP. Only one motor plugged in? Tap the crossed-out eye on the other one to hide it; a dashed "Motor B is hidden · + Show" bar brings it back (or use Settings → Motors).
 - **Code**: Scratch-style blocks (motor, stop motors, wait, repeat, note, song). Tap a coloured block to add it; tap a block in your program to move, copy or delete it. A selected *repeat* takes new blocks inside it. ▶ runs the whole program, the green ▶ on a selected block runs just that block, ■ stops.
 
-The button left of Connect switches to full screen (where the browser supports it).
+The diagonal-arrows button in the top-right corner switches to full screen (where the browser supports it).
+
+**Install as an app:** it's a PWA. Use Settings → App → *Install app* (or the browser menu → *Install app* / *Add to Home screen*). Once installed or visited, it opens without internet; you still need Bluetooth, of course.
 - **Settings**: hub and channel, per-motor tuning (spin the other way, top speed, dead zone), connection options, and under **Developer** the probe console used to discover the protocol.
 
 **Connecting:** tap the button at the top. Chrome asks you to pick the hub the first time. After that the button reconnects without the picker. Dropped connections are retried automatically, and where Chrome remembers the hub from a previous visit, the page connects by itself when it opens.
@@ -38,6 +40,8 @@ index.html, css/, js/      the site (static, no build step); js/ holds ES module
   protocol.js              CB10 frame encoder/decoder
   control.js / program.js  Drive screen and Code (block) editor
   probe.js                 developer probe console
+manifest.webmanifest, sw.js  PWA manifest and offline service worker
+icons/                     app icons (regenerate with python3 tools/make_icons.py)
 tests/                     node --test unit tests
 docs/PROTOCOL.md           everything known about the hub's protocol
 docs/PLAN.md               the original project plan
@@ -48,7 +52,7 @@ docs/PLAN.md               the original project plan
 
 Live: <https://matoussynek.github.io/cb10-playground/>
 
-Every push to `master` runs the tests and, if they pass, publishes `index.html`, `css/` and `js/` to GitHub Pages. Pull requests only run the tests. Pages is served over HTTPS, which Web Bluetooth requires, so the live URL works on a phone.
+Every push to `master` runs the tests and, if they pass, publishes the site (`index.html`, `manifest.webmanifest`, `sw.js`, `css/`, `js/`, `icons/`) to GitHub Pages, stamping `sw.js` with the commit so installed apps pick up the new version. Pull requests only run the tests. Pages is served over HTTPS, which Web Bluetooth requires, so the live URL works on a phone.
 
 One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**. A run can also be started by hand from the Actions tab (*Test and deploy to GitHub Pages* → *Run workflow*).
 

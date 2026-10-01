@@ -627,3 +627,44 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 /* On narrow phones the wordmark gives its room to the connect button. */
 @media (max-width: 419px) { .brand { display: none; } }
 .toolbar .key-green svg { width: 20px; height: 20px; }
+
+/* ---------- hide a motor ---------- */
+.mcol[hidden], .mrestore[hidden] { display: none; }
+.hide-btn {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--chassis);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.hide-btn svg { width: 22px; height: 22px; }
+.hide-btn:disabled { visibility: hidden; }
+.drive.single { grid-template-columns: minmax(0, 360px); justify-content: center; }
+.mrestore {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px 14px;
+  border: 3px dashed var(--line);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--ink);
+  font: 800 1rem var(--font);
+  cursor: pointer;
+  text-align: left;
+}
+.mrestore .mbadge { width: 36px; height: 36px; font-size: 1.1rem; background: var(--blue); opacity: 0.6; }
+.mrestore[data-motor="B"] .mbadge { background: var(--green); }
+.mrestore span:nth-child(2) { flex: 1; color: var(--muted); }
+.mrestore-show { padding: 8px 14px; border-radius: 999px; background: var(--ink); color: var(--display-ink); }
+
+/* Fullscreen sits in the top-right corner: quiet, so it is never confused with STOP. */
+.bar .icon-btn { width: 44px; height: 44px; background: transparent; box-shadow: none; color: var(--muted); }
+.bar .icon-btn:hover { color: var(--ink); }

@@ -6,6 +6,11 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#e9e8e3">
   <title>CB10 Controller</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CB10">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/main.js"></script>
 </head>
@@ -21,11 +26,11 @@
 
   <header class="bar">
     <span class="brand" aria-label="CB10">CB<b>10</b></span>
-    <button id="fullscreenBtn" class="icon-btn" type="button" aria-label="Full screen" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button id="connectBtn" class="conn" type="button" data-state="disconnected">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="connLabel">Connect</span>
     </button>
     <button id="panicBtn" class="stop-round" type="button" aria-label="Stop everything"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg></button>
+    <button id="fullscreenBtn" class="icon-btn" type="button" aria-label="Full screen" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-6.5 6.5M10 20H4v-6M4 20l6.5-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </header>
 
   <div id="mockBanner" class="mock-banner" hidden>
@@ -98,6 +103,12 @@
         <div id="motorSettings" class="motor-settings"></div>
         <label class="check"><input id="springBack" type="checkbox"> Sliders jump back to 0 when let go</label>
         <p class="hint">Keyboard: W / S motor A, I / K motor B, Space stops.</p>
+      </div>
+
+      <div id="appCard" class="card" hidden>
+        <h2 class="label">App</h2>
+        <p id="appText" class="hint"></p>
+        <button id="installBtn" type="button" class="key key-small" hidden>Install app</button>
       </div>
 
       <details class="card fold">

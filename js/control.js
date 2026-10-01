@@ -18,9 +18,10 @@ export function createMotors(ble) {
     channel: CHANNELS.includes(saved.channel) ? saved.channel : 1,
     autoDetect: saved.autoDetect !== false,
     springBack: saved.springBack !== false,
-    A: { invert: !!saved.A?.invert, max: clampMax(saved.A?.max), min: clampMin(saved.A?.min) },
-    B: { invert: !!saved.B?.invert, max: clampMax(saved.B?.max), min: clampMin(saved.B?.min) },
+    A: { invert: !!saved.A?.invert, max: clampMax(saved.A?.max), min: clampMin(saved.A?.min), hidden: !!saved.A?.hidden },
+    B: { invert: !!saved.B?.invert, max: clampMax(saved.B?.max), min: clampMin(saved.B?.min), hidden: !!saved.B?.hidden },
   };
+  if (cfg.A.hidden && cfg.B.hidden) cfg.B.hidden = false;
   const speeds = { A: 0, B: 0 };
   const events = new EventTarget();
   const emit = (type, detail) => events.dispatchEvent(new CustomEvent(type, { detail }));
@@ -110,6 +111,12 @@ export function createMotors(ble) {
     if (patch.invert != null) cfg[m].invert = !!patch.invert;
     if (patch.max != null) cfg[m].max = clampMax(patch.max);
     if (patch.min != null) cfg[m].min = clampMin(patch.min);
+    if (patch.hidden != null) {
+      const other = m === 'A' ? 'B' : 'A';
+      // Never hide both: there must always be a motor (and a way back) on the Drive screen.
+      if (!patch.hidden || !cfg[other].hidden) cfg[m].hidden = !!patch.hidden;
+      if (cfg[m].hidden) speeds[m] = 0;
+    }
     save();
     emit('change');
     send();
@@ -163,6 +170,7 @@ function h(tag, props = {}, ...children) {
 const fmt = v => (v > 0 ? `+${v}` : String(v));
 const ARROW_UP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 11h-6v5H9v-5H3z"/></svg>';
 const ARROW_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20l9-11h-6V4H9v5H3z"/></svg>';
+const EYE_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c5 0 8.5 4.3 9.5 6-.5.9-1.6 2.4-3.1 3.7M6.3 7.6C4.4 8.9 3.1 10.8 2.5 12c1 1.7 4.5 6 9.5 6 1.6 0 3-.4 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const PAD = 18; // half the thumb height, so both ends stay reachable
 
 // Big vertical slider, -100 (bottom) … +100 (top), 0 in the middle.
@@ -247,11 +255,22 @@ export function createControlPanel(ble, motors, { isActive }) {
     });
     const up = holdKey(m, 1, motors, holding);
     const down = holdKey(m, -1, motors, holding);
+    const hideBtn = h('button', {
+      type: 'button', class: 'hide-btn', 'aria-label': `Hide motor ${m}`, title: `Hide motor ${m}`, html: EYE_OFF,
+      onclick: () => {
+        drive[m].holds.forEach(b => b.release());
+        motors.configure(m, { hidden: true });
+      },
+    });
+    const restore = h('button', {
+      type: 'button', class: 'mrestore', 'data-motor': m, hidden: true,
+      onclick: () => motors.configure(m, { hidden: false }),
+    }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), h('span', {}, `Motor ${m} is hidden`), h('span', { class: 'mrestore-show' }, '+ Show'));
     drive[m] = {
       el: h('div', { class: 'mcol', 'data-motor': m },
-        h('div', { class: 'mhead' }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), readout),
+        h('div', { class: 'mhead' }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), readout, hideBtn),
         up, slider.el, down),
-      readout, slider, holds: [up, down],
+      readout, slider, holds: [up, down], hideBtn, restore,
     };
 
     const invert = h('input', { type: 'checkbox', onchange: e => motors.configure(m, { invert: e.target.checked }) });
@@ -259,15 +278,17 @@ export function createControlPanel(ble, motors, { isActive }) {
     const max = h('input', { type: 'range', min: '10', max: '100', step: '5', oninput: e => motors.configure(m, { max: Number(e.target.value) }) });
     const minOut = h('output');
     const min = h('input', { type: 'range', min: '0', max: '50', step: '1', oninput: e => motors.configure(m, { min: Number(e.target.value) }) });
-    sets[m] = { invert, max, maxOut, min, minOut };
+    const shown = h('input', { type: 'checkbox', onchange: e => motors.configure(m, { hidden: !e.target.checked }) });
+    sets[m] = { invert, max, maxOut, min, minOut, shown };
     sets[m].el = h('div', { class: 'mset', 'data-motor': m },
       h('h3', {}, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), `Motor ${m}`),
+      h('label', { class: 'check' }, shown, 'Show on the Drive screen'),
       h('label', { class: 'check' }, invert, 'Spin the other way'),
       h('label', {}, h('span', {}, 'Top speed'), max, maxOut),
       h('label', { title: 'Lowest speed at which this motor still turns; the slider starts here' }, h('span', {}, 'Dead zone'), min, minOut),
     );
   }
-  $('motorPanels').replaceChildren(...MOTORS.map(m => drive[m].el));
+  $('motorPanels').replaceChildren(...MOTORS.map(m => drive[m].el), ...MOTORS.map(m => drive[m].restore));
   $('motorSettings').replaceChildren(...MOTORS.map(m => sets[m].el));
 
   const chButtons = $('channelButtons');
@@ -301,7 +322,14 @@ export function createControlPanel(ble, motors, { isActive }) {
       sets[m].maxOut.textContent = `${c.max}%`;
       sets[m].min.value = c.min;
       sets[m].minOut.textContent = `${c.min}%`;
+      const onlyOne = !c.hidden && motors.cfg[m === 'A' ? 'B' : 'A'].hidden;
+      drive[m].el.hidden = c.hidden;
+      drive[m].restore.hidden = !c.hidden;
+      drive[m].hideBtn.disabled = onlyOne;
+      sets[m].shown.checked = !c.hidden;
+      sets[m].shown.disabled = onlyOne;
     }
+    $('motorPanels').classList.toggle('single', MOTORS.some(m => motors.cfg[m].hidden));
     [...chButtons.children].forEach((b, i) => b.setAttribute('aria-pressed', String(CHANNELS[i] === motors.cfg.channel)));
     $('autoDetect').checked = motors.cfg.autoDetect;
     $('springBack').checked = motors.cfg.springBack;
@@ -333,7 +361,7 @@ export function createControlPanel(ble, motors, { isActive }) {
       return;
     }
     const k = KEYS[e.key.toLowerCase()];
-    if (!k || e.repeat) return;
+    if (!k || e.repeat || motors.cfg[k[0]].hidden) return;
     motors.set({ [k[0]]: k[1] * 100 });
   });
   document.addEventListener('keyup', e => {

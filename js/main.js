@@ -113,8 +113,9 @@ function init() {
   $('panicBtn').addEventListener('click', () => stopEverything('button'));
 
   // ---------- fullscreen ----------
+  // Diagonal arrows: pointing out to the corners (enter) or in to the centre (leave).
   const ICON_EXPAND = $('fullscreenBtn').innerHTML;
-  const ICON_SHRINK = ICON_EXPAND.replace(/d="[^"]+"/, 'd="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"');
+  const ICON_SHRINK = ICON_EXPAND.replace(/d="[^"]+"/, 'd="M20 4l-6 6M14 5v5h5M4 20l6-6M5 14h5v5"');
   if (document.documentElement.requestFullscreen) {
     const fsBtn = $('fullscreenBtn');
     const sync = () => {
@@ -322,8 +323,42 @@ function init() {
   });
   window.addEventListener('pagehide', () => stopEverything('page unload'));
 
+  // ---------- install as an app ----------
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let installEvent = null;
+  function renderApp() {
+    $('appCard').hidden = false;
+    $('installBtn').hidden = !installEvent;
+    $('appText').textContent = standalone
+      ? 'Running as an installed app. It also opens without internet.'
+      : installEvent
+        ? 'Put CB10 on your home screen. It opens like an app and works without internet.'
+        : "To install, use your browser's menu (\u22ee) \u2192 Install app / Add to Home screen.";
+  }
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installEvent = e;
+    renderApp();
+  });
+  window.addEventListener('appinstalled', () => {
+    installEvent = null;
+    renderApp();
+  });
+  $('installBtn').addEventListener('click', async () => {
+    if (!installEvent) return;
+    installEvent.prompt();
+    await installEvent.userChoice.catch(() => {});
+    installEvent = null;
+    renderApp();
+  });
+  renderApp();
+
   renderState();
   autoConnect();
+}
+
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {}); // offline support is optional
 }
 
 init();
