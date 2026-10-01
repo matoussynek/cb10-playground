@@ -514,12 +514,12 @@ export function createProgramEditor(ble, motors) {
     placeSlot(overTrash ? { trash: true } : findTarget(x, y));
   }
 
-  // Scroll only when the finger is pushed against the top bar or onto the dock, so holding a block
-  // over the lower part of the script never moves the drop target away.
+  // Scroll only when the finger is pushed against the top bar or the bottom edge, so holding a
+  // block over the lower part of the script never moves the drop target away.
   function autoScroll() {
     if (!drag) return;
     const top = document.querySelector('.bar').getBoundingClientRect().bottom + 16;
-    const bottom = document.querySelector('.dock').getBoundingClientRect().top - 8;
+    const bottom = innerHeight - 40;
     const v = drag.y < top ? -Math.ceil((top - drag.y) / 4) : drag.y > bottom ? Math.ceil((drag.y - bottom) / 4) : 0;
     if (v) {
       scrollBy(0, v);
@@ -591,7 +591,6 @@ export function createProgramEditor(ble, motors) {
 
   function setRunning(running, status) {
     $('progRun').disabled = running;
-    $('progStop').disabled = !running;
     $('progEditor').disabled = running;
     for (const b of $('palette').children) b.disabled = running;
     $('progStatus').textContent = status;
@@ -633,16 +632,12 @@ export function createProgramEditor(ble, motors) {
     }
   }
 
-  // Halts the sequence without sending anything; safe to call when nothing is running.
+  // Halts the sequence without sending anything (the top-bar STOP then stops the motors);
+  // safe to call when nothing is running.
   function abort(reason) {
     if (!ctl) return;
     ctl.abort(new Error(reason));
     audio.stopAll();
-  }
-
-  function stop(reason) {
-    abort(reason);
-    motors.stopAll(reason);
   }
 
   // ----- my programs -----
@@ -716,7 +711,6 @@ export function createProgramEditor(ble, motors) {
   });
 
   $('progRun').addEventListener('click', () => run());
-  $('progStop').addEventListener('click', () => stop('program stop'));
 
   render();
   renderSaved();

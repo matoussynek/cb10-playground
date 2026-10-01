@@ -24,13 +24,25 @@
     </div>
   </div>
 
-  <header class="bar">
+  <nav class="rail" aria-label="Mode">
     <span class="brand" aria-label="CB10">CB<b>10</b></span>
+    <div class="rail-modes" role="tablist" aria-orientation="vertical">
+      <button id="navDrive" type="button" role="tab" aria-controls="viewDrive" aria-selected="true" aria-label="Drive" title="Drive"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 10.5v4M5.5 12.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="11.2" r="1.2" fill="currentColor"/><circle cx="18" cy="13.8" r="1.2" fill="currentColor"/></svg></button>
+      <button id="navCode" type="button" role="tab" aria-controls="viewCode" aria-selected="false" aria-label="Code" title="Code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M6.5 13.5h.01M17 13.5h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.5 14h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="rail-tools">
+      <button id="fullscreenBtn" class="icon-btn" type="button" aria-label="Full screen" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-6.5 6.5M10 20H4v-6M4 20l6.5-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button id="navSettings" type="button" class="rail-settings" aria-label="Settings for grown-ups: press and hold" title="Hold to open settings">
+        <svg class="hold-ring" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <header class="bar">
     <button id="connectBtn" class="conn" type="button" data-state="disconnected">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="connLabel">Connect</span>
     </button>
-    <button id="panicBtn" class="stop-round" type="button" aria-label="Stop everything"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg></button>
-    <button id="fullscreenBtn" class="icon-btn" type="button" aria-label="Full screen" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-6.5 6.5M10 20H4v-6M4 20l6.5-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button id="panicBtn" class="stop-round" type="button" aria-label="Stop everything" title="Stop everything"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg></button>
   </header>
 
   <div id="mockBanner" class="mock-banner" hidden>
@@ -44,17 +56,15 @@
     <section id="viewDrive" class="view" role="tabpanel" aria-labelledby="navDrive">
       <div id="connectCard" class="card cta" hidden>
         <p class="cta-title">Turn on the hub, then tap</p>
-        <button id="connectBig" type="button" class="key key-blue key-wide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Connect</button>
+        <button id="connectBig" type="button" class="key key-accent key-wide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Connect</button>
       </div>
       <div id="motorPanels" class="drive"></div>
-      <button id="stopAllBtn" type="button" class="key key-red key-wide"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg> STOP</button>
       <p id="controlHint" class="hint center"></p>
     </section>
 
     <section id="viewCode" class="view" role="tabpanel" aria-labelledby="navCode" hidden>
       <div class="runbar">
         <button id="progRun" type="button" class="key key-green" aria-label="Run program"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></button>
-        <button id="progStop" type="button" class="key key-red" aria-label="Stop program"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg></button>
         <span id="progStatus" class="display" role="status" aria-live="polite"></span>
       </div>
       <div id="palette" class="palette" aria-label="Add a block"></div>
@@ -80,7 +90,11 @@
       <p class="hint center">Keep this screen open while a program runs. It stops if you switch apps.</p>
     </section>
 
-    <section id="viewSettings" class="view" role="tabpanel" aria-labelledby="navSettings" hidden>
+    <section id="viewSettings" class="view" aria-label="Settings" hidden>
+      <div class="view-head">
+        <h1>Settings</h1>
+        <button id="settingsDone" type="button" class="key key-accent key-small">Done</button>
+      </div>
       <div class="card">
         <h2 class="label">Hub</h2>
         <p id="deviceName" class="display wide">No hub</p>
@@ -137,7 +151,7 @@
       </details>
     </section>
 
-    <section id="viewProbe" class="view probe" role="tabpanel" hidden>
+    <section id="viewProbe" class="view probe" aria-label="Probe console" hidden>
       <div class="row probe-head">
         <button id="closeProbe" type="button" class="key key-small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> Settings</button>
         <h2 class="label">Probe console</h2>
@@ -260,11 +274,6 @@
     </section>
   </main>
 
-  <nav class="dock" role="tablist" aria-label="Mode">
-    <button id="navDrive" type="button" role="tab" aria-controls="viewDrive" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5" stroke="currentColor" stroke-width="2.5"/></svg><span>Drive</span></button>
-    <button id="navCode" type="button" role="tab" aria-controls="viewCode" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5a2 2 0 0 1 2-2h5l1.5 2H19a2 2 0 0 1 2 2v3H3z"/><path d="M3 13h18v4a2 2 0 0 1-2 2h-7.5L10 21H5a2 2 0 0 1-2-2z"/></svg><span>Code</span></button>
-    <button id="navSettings" type="button" role="tab" aria-controls="viewSettings" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2h3.4l.5 2.6 1.9.8 2.2-1.5 2.4 2.4-1.5 2.2.8 1.9 2.6.5v3.4l-2.6.5-.8 1.9 1.5 2.2-2.4 2.4-2.2-1.5-1.9.8-.5 2.6h-3.4l-.5-2.6-1.9-.8-2.2 1.5-2.4-2.4 1.5-2.2-.8-1.9L2 13.7v-3.4l2.6-.5.8-1.9-1.5-2.2 2.4-2.4 2.2 1.5 1.9-.8zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/></svg><span>Settings</span></button>
-  </nav>
 
   <div id="sweepBar" class="sweep-bar" hidden>
     <div class="sweep-info">

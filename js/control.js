@@ -304,10 +304,6 @@ export function createControlPanel(ble, motors, { isActive }) {
   $('detectChannel').addEventListener('click', () => motors.detectChannel().catch(() => {}));
   $('autoDetect').addEventListener('change', ev => motors.setOption('autoDetect', ev.target.checked));
   $('springBack').addEventListener('change', ev => motors.setOption('springBack', ev.target.checked));
-  $('stopAllBtn').addEventListener('click', () => {
-    releaseAll();
-    motors.stopAll('button');
-  });
 
   function render() {
     const live = ble.state === 'connected';

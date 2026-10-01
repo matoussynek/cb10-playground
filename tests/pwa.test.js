@@ -14,6 +14,7 @@ test('everything the site loads is precached, so it opens offline', () => {
   const needed = ['index.html', 'manifest.webmanifest', 'css/style.css', ...readdirSync(new URL('js/', root)).map(f => `js/${f}`)];
   const html = read('index.html');
   for (const [, ref] of html.matchAll(/(?:href|src)="([^"#?:]+)"/g)) needed.push(ref);
+  for (const [, ref] of read('css/style.css').matchAll(/url\('\.\.\/([^')]+)'\)/g)) needed.push(ref);
   for (const f of new Set(needed)) assert.ok(shell.includes(f), `${f} is not in sw.js SHELL`);
 });
 

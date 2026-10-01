@@ -86,19 +86,59 @@ function init() {
   ble.addEventListener('error', ev => showError(ev.detail));
 
   // ---------- views ----------
+  // Drive and Code are the kids' modes; Settings and the probe are for grown-ups and are never
+  // remembered as the start screen.
   const VIEWS = ['Drive', 'Code', 'Settings', 'Probe'];
-  const DOCK = { Drive: 'navDrive', Code: 'navCode', Settings: 'navSettings', Probe: 'navSettings' };
-  let view = loadJSON('cb10.view', 'Drive');
+  const MODES = ['Drive', 'Code'];
+  let mode = loadJSON('cb10.view', 'Drive');
+  if (!MODES.includes(mode)) mode = 'Drive';
+  let view = mode;
   function showView(name) {
     view = VIEWS.includes(name) ? name : 'Drive';
+    if (MODES.includes(view)) {
+      mode = view;
+      saveJSON('cb10.view', mode);
+    }
     for (const v of VIEWS) $(`view${v}`).hidden = v !== view;
-    for (const [v, id] of Object.entries(DOCK)) if (v !== 'Probe') $(id).setAttribute('aria-selected', String(DOCK[view] === id));
-    saveJSON('cb10.view', view);
+    for (const m of MODES) $(`nav${m}`).setAttribute('aria-selected', String(m === view));
+    $('navSettings').setAttribute('aria-pressed', String(!MODES.includes(view)));
+    scrollTo(0, 0);
   }
-  for (const v of ['Drive', 'Code', 'Settings']) $(`nav${v}`).addEventListener('click', () => showView(v));
+  for (const m of MODES) $(`nav${m}`).addEventListener('click', () => showView(m));
+  $('settingsDone').addEventListener('click', () => showView(mode));
   $('openProbe').addEventListener('click', () => showView('Probe'));
   $('closeProbe').addEventListener('click', () => showView('Settings'));
   showView(view);
+
+  // Settings open only after a press-and-hold, so a child tapping around never lands there.
+  // Keyboard activation (Enter/Space, click.detail === 0) opens directly for adults on a desktop.
+  const HOLD_MS = 1500;
+  const gear = $('navSettings');
+  let holdTimer = null;
+  gear.style.setProperty('--hold-ms', `${HOLD_MS}ms`);
+  const cancelHold = () => {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    gear.classList.remove('holding');
+  };
+  gear.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    if (!MODES.includes(view)) return showView(mode); // already in settings: a tap goes back
+    gear.classList.add('holding');
+    holdTimer = setTimeout(() => {
+      cancelHold();
+      showView('Settings');
+    }, HOLD_MS);
+  });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) {
+    gear.addEventListener(ev, () => {
+      if (!holdTimer) return;
+      cancelHold();
+      if (ev === 'pointerup') showError(new Error('Settings are for grown-ups: press and hold the gear.'));
+    });
+  }
+  gear.addEventListener('click', e => { if (e.detail === 0) showView(MODES.includes(view) ? 'Settings' : mode); });
+  gear.addEventListener('contextmenu', e => e.preventDefault());
   const control = createControlPanel(ble, motors, { isActive: () => view === 'Drive' });
 
   // One stop for everything: halt the program and sweep first (they send nothing), then stop the
@@ -153,11 +193,11 @@ function init() {
     const busy = s === 'connecting' || searching || retrying;
     btn.dataset.state = s === 'connected' ? s : busy ? 'connecting' : s;
     let label;
-    if (s === 'connected') label = `Connected · ch ${motors.cfg.channel}`;
-    else if (busy) label = retrying ? 'Reconnecting…' : searching ? 'Looking for hub…' : 'Connecting…';
+    if (s === 'connected') label = `Ready · ch ${motors.cfg.channel}`;
+    else if (busy) label = retrying ? 'Reconnecting…' : searching ? 'Searching…' : 'Connecting…';
     else label = ble.device && !forcePicker ? 'Tap to connect' : 'Connect';
     $('connLabel').textContent = label;
-    btn.setAttribute('aria-label', s === 'connected' ? `Connected to ${hubName()}, channel ${motors.cfg.channel}. Open hub settings` : label);
+    btn.setAttribute('aria-label', s === 'connected' ? `Connected to ${hubName()}, channel ${motors.cfg.channel}` : label);
     $('connectCard').hidden = s === 'connected' || busy;
     $('reconnectBtn').disabled = s !== 'disconnected' || !ble.device;
     $('disconnectBtn').disabled = s !== 'connected';
@@ -196,7 +236,7 @@ function init() {
   // One button: known hub → reconnect without the picker; otherwise (or after a failed try) the picker.
   async function connectTap() {
     if (ble.state === 'connected') {
-      showView('Settings');
+      showError(new Error(`Connected to ${ble.device?.name || 'the hub'} on channel ${motors.cfg.channel}.`));
       return;
     }
     if (ble.state === 'connecting' || searching || retrying) return;

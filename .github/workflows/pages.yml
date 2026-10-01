@@ -29,7 +29,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir _site
-          cp -r index.html manifest.webmanifest sw.js css js icons _site/
+          cp -r index.html manifest.webmanifest sw.js css js icons fonts _site/
           # A new cache name per deploy makes installed apps drop the old offline copy.
           sed -i "s/const VERSION = 'dev';/const VERSION = '${GITHUB_SHA::12}';/" _site/sw.js
           grep -q "${GITHUB_SHA::12}" _site/sw.js

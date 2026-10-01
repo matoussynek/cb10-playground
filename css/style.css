@@ -1,3 +1,11 @@
+/* IBM Plex Mono (SIL OFL 1.1, fonts/OFL.txt), bundled so the app also works offline. */
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400 500; font-display: swap; src: url('../fonts/plex-mono-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400 500; font-display: swap; src: url('../fonts/plex-mono-latin-ext-400.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('../fonts/plex-mono-latin-600.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('../fonts/plex-mono-latin-ext-600.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 700 900; font-display: swap; src: url('../fonts/plex-mono-latin-700.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 700 900; font-display: swap; src: url('../fonts/plex-mono-latin-ext-700.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
 /* Flat "hardware" look: warm grey chassis, white keys, black display, a few bold colours.
    Blue = motor A / motion, green = motor B / go, orange = control, purple = sound, red = stop. */
 :root {
@@ -22,11 +30,13 @@
   --purple-dark: #614f95;
   --red: #c8463f;
   --red-dark: #9d3530;
-  --font: ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --accent: #f28c28; /* tangerine: the UI accent; ink text on it */
+  --accent-dark: #c76f16;
+  --rail-w: 68px;
+  --font: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --radius: 14px;
   --tap: 48px;
-  --dock-h: 72px;
 }
 
 * { box-sizing: border-box; }
@@ -36,8 +46,9 @@ body {
   margin: 0;
   background: var(--chassis);
   color: var(--ink);
-  font: 17px/1.35 var(--font);
-  padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom) + 16px);
+  font: 16px/1.35 var(--font);
+  padding-left: calc(var(--rail-w) + env(safe-area-inset-left));
+  padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -50,7 +61,7 @@ code, .mono { font-family: var(--mono); }
 .label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 h3.label { margin-top: 18px; }
 
-:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
 
 /* ---------- top bar ---------- */
 .bar {
@@ -65,7 +76,7 @@ h3.label { margin-top: 18px; }
   background: var(--chassis);
 }
 .brand { font-weight: 900; font-size: 1.15rem; letter-spacing: 0.04em; }
-.brand b { color: var(--blue); }
+.brand b { color: var(--accent); }
 
 .conn {
   flex: 1;
@@ -79,8 +90,8 @@ h3.label { margin-top: 18px; }
   border-radius: 999px;
   font: 800 1rem var(--font);
   cursor: pointer;
-  background: var(--blue);
-  color: #fff;
+  background: var(--accent);
+  color: var(--ink);
   min-width: 0;
 }
 .conn svg { width: 22px; height: 22px; flex: none; }
@@ -91,10 +102,11 @@ h3.label { margin-top: 18px; }
 .conn[data-state="connected"] svg { color: var(--green); }
 @keyframes pulse { 50% { opacity: 0.3; } }
 
+/* The one STOP: same place on every screen, stops everything. */
 .stop-round {
   flex: none;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   border: 0;
   background: var(--red);
@@ -104,7 +116,7 @@ h3.label { margin-top: 18px; }
   cursor: pointer;
   box-shadow: 0 4px 0 var(--red-dark);
 }
-.stop-round svg { width: 26px; height: 26px; fill: currentColor; }
+.stop-round svg { width: 30px; height: 30px; fill: currentColor; }
 .stop-round:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--red-dark); }
 
 .mock-banner {
@@ -185,6 +197,9 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 .key:active:not(:disabled), .key.active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
 .key:disabled { opacity: 0.4; cursor: not-allowed; }
 .key-blue { background: var(--blue); color: #fff; box-shadow: 0 4px 0 var(--blue-dark); }
+.key-accent { background: var(--accent); color: var(--ink); box-shadow: 0 4px 0 var(--accent-dark); }
+.key-accent:active { box-shadow: none; }
+.key-small.key-accent { background: var(--accent); box-shadow: 0 3px 0 var(--accent-dark); }
 .key-green { background: var(--green); color: #fff; box-shadow: 0 4px 0 var(--green-dark); }
 .key-red { background: var(--red); color: #fff; box-shadow: 0 4px 0 var(--red-dark); }
 .key-blue:active, .key-green:active, .key-red:active { box-shadow: none; }
@@ -290,7 +305,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 .pblock:disabled { opacity: 0.4; }
 
 .cat-motion { --b: var(--blue); --d: var(--blue-dark); background: var(--blue); color: #fff; }
-.cat-control { --b: var(--orange); --d: var(--orange-dark); background: var(--orange); color: var(--ink); }
+.cat-control { --b: var(--accent); --d: var(--accent-dark); background: var(--accent); color: var(--ink); }
 .cat-sound { --b: var(--purple); --d: var(--purple-dark); background: var(--purple); color: #fff; }
 .cat-event { --b: var(--yellow); --d: var(--yellow-dark); background: var(--yellow); color: var(--ink); }
 
@@ -441,40 +456,6 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 .file-btn input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .file-btn:focus-within { outline: 3px solid var(--blue); outline-offset: 2px; }
 
-/* ---------- dock ---------- */
-.dock {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 15;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 8px 16px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  background: var(--chassis);
-  box-shadow: 0 -1px 0 var(--line);
-}
-.dock button {
-  height: calc(var(--dock-h) - 16px);
-  border: 0;
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--muted);
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 2px;
-  font: 800 0.8rem var(--font);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-.dock svg { width: 28px; height: 28px; fill: currentColor; }
-.dock button[aria-selected="true"] { background: var(--key); color: var(--ink); }
-.dock button[aria-selected="true"] svg { color: var(--blue); }
-
 /* ---------- probe console (developer) ---------- */
 .probe details {
   background: var(--key);
@@ -551,7 +532,9 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(var(--dock-h) + env(safe-area-inset-bottom));
+  bottom: 0;
+  left: calc(var(--rail-w) + env(safe-area-inset-left));
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
   z-index: 20;
   background: var(--key);
   border-top: 3px solid var(--red);
@@ -571,8 +554,8 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 .fullscreen-box h1 { font-size: 1.4rem; margin: 12px 0; }
 .big-letter { width: 64px; height: 64px; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; font-size: 2rem; font-weight: 900; }
 
-/* Keep the bar, banner and dock in the same centred column as the content on wide screens. */
-.bar, .dock { padding-left: max(16px, calc(50% - 344px)); padding-right: max(16px, calc(50% - 344px)); }
+/* Keep the bar and banner in the same centred column as the content on wide screens. */
+.bar { padding-left: max(16px, calc(50% - 344px)); padding-right: max(16px, calc(50% - 344px)); }
 .mock-banner, .toast { max-width: 688px; margin-left: auto; margin-right: auto; }
 
 /* ---------- drag and drop ---------- */
@@ -588,7 +571,7 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 .drop-line::before { content: ""; position: absolute; left: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: inherit; }
 .drop-line[hidden] { display: none; }
 .cat-motion-slot { background: var(--blue); }
-.cat-control-slot { background: var(--orange-dark); }
+.cat-control-slot { background: var(--accent-dark); }
 .cat-sound-slot { background: var(--purple); }
 .c-body.drop-into { background: rgba(28, 28, 30, 0.06); border-radius: 0 10px 10px 0; outline: 3px dashed var(--muted); outline-offset: -3px; }
 .palette { position: relative; border-radius: var(--radius); transition: background 0.15s; }
@@ -624,8 +607,6 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 .icon-btn[hidden] { display: none; }
 .icon-btn svg { width: 24px; height: 24px; }
 .icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
-/* On narrow phones the wordmark gives its room to the connect button. */
-@media (max-width: 419px) { .brand { display: none; } }
 .toolbar .key-green svg { width: 20px; height: 20px; }
 
 /* ---------- hide a motor ---------- */
@@ -665,6 +646,99 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 .mrestore span:nth-child(2) { flex: 1; color: var(--muted); }
 .mrestore-show { padding: 8px 14px; border-radius: 999px; background: var(--ink); color: var(--display-ink); }
 
-/* Fullscreen sits in the top-right corner: quiet, so it is never confused with STOP. */
-.bar .icon-btn { width: 44px; height: 44px; background: transparent; box-shadow: none; color: var(--muted); }
-.bar .icon-btn:hover { color: var(--ink); }
+/* Fullscreen sits at the bottom of the rail with the settings gear, away from STOP. */
+.rail .icon-btn { width: 44px; height: 44px; background: transparent; box-shadow: none; color: var(--muted); }
+.rail .icon-btn:hover { color: var(--ink); }
+
+/* ---------- left rail: two big mode icons for kids, a hold-to-open gear for grown-ups ---------- */
+.rail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 16;
+  width: calc(var(--rail-w) + env(safe-area-inset-left));
+  padding: max(14px, env(safe-area-inset-top)) 0 max(14px, env(safe-area-inset-bottom)) env(safe-area-inset-left);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  background: var(--chassis);
+  border-right: 1px solid var(--line);
+}
+.rail .brand { font-size: 0.8rem; letter-spacing: 0; }
+.rail-modes { display: grid; gap: 12px; }
+.rail-modes button {
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.rail-modes svg { width: 32px; height: 32px; }
+.rail-modes button:hover { color: var(--ink); }
+.rail-modes button[aria-selected="true"] { background: var(--accent); color: var(--ink); }
+.rail-tools { margin-top: auto; display: grid; justify-items: center; gap: 10px; }
+.rail-settings {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #b2b1aa;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rail-settings > svg:last-child { width: 22px; height: 22px; }
+.rail-settings:hover, .rail-settings.holding, .rail-settings[aria-pressed="true"] { color: var(--muted); }
+.hold-ring { position: absolute; inset: 0; width: 44px; height: 44px; transform: rotate(-90deg); pointer-events: none; }
+.hold-ring circle { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 126; stroke-dashoffset: 126; }
+.rail-settings.holding .hold-ring circle { transition: stroke-dashoffset var(--hold-ms, 1500ms) linear; stroke-dashoffset: 0; }
+
+.view-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
+.view-head h1 { font-size: 1.3rem; }
+
+/* With the rail taking width, let the two motor columns shrink and keep their headers compact. */
+.drive { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.drive.single { grid-template-columns: minmax(0, 360px); }
+.mhead { gap: 6px; min-width: 0; }
+.mhead .display { min-width: 0; }
+@media (max-width: 420px) {
+  .drive { gap: 8px; }
+  .mcol { padding: 10px 8px 12px; }
+  .mhead .mbadge { width: 34px; height: 34px; font-size: 1.1rem; }
+  .hide-btn { width: 34px; height: 34px; }
+  .mhead .display { font-size: 1.05rem; }
+}
+
+/* The mono font is wide: keep "Ready · ch 1" from truncating on phones. */
+.conn { padding: 0 12px; font-size: 0.95rem; gap: 6px; }
+
+/* Phones held sideways: keys beside the slider so a whole motor fits without scrolling. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .bar { padding-top: max(6px, env(safe-area-inset-top)); padding-bottom: 6px; }
+  .rail { gap: 10px; padding-top: max(8px, env(safe-area-inset-top)); }
+  .rail-modes { gap: 8px; }
+  .mcol {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "head head" "up slider" "down slider";
+    align-items: stretch;
+    gap: 8px 12px;
+  }
+  .mhead { grid-area: head; }
+  .mcol .hold:first-of-type { grid-area: up; }
+  .mcol .hold:last-of-type { grid-area: down; }
+  .mcol .vs { grid-area: slider; height: auto; min-height: 150px; align-self: stretch; }
+  .hold { min-height: 64px; }
+  .key-wide { min-height: 52px; }
+}

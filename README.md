@@ -2,15 +2,15 @@
 
 A static site that talks to the "CB10" Lego-WeDo-style motor hub straight from the browser via Web Bluetooth. No backend, no build step, no dependencies.
 
-Three screens, picked from the dock at the bottom:
+Two modes for kids, picked from the rail on the left (gamepad = Drive, keyboard = Code), and Settings for grown-ups:
 
-- **Drive**: a big ▲ / ▼ key and a slider for each motor (A blue, B green), plus STOP. Only one motor plugged in? Tap the crossed-out eye on the other one to hide it; a dashed "Motor B is hidden · + Show" bar brings it back (or use Settings → Motors).
-- **Code**: Scratch-style blocks (motor, stop motors, wait, repeat, note, song). Tap a coloured block to add it; tap a block in your program to move, copy or delete it. A selected *repeat* takes new blocks inside it. ▶ runs the whole program, the green ▶ on a selected block runs just that block, ■ stops.
+- **Drive**: a big ▲ / ▼ key and a slider for each motor (A blue, B green), Only one motor plugged in? Tap the crossed-out eye on the other one to hide it; a dashed "Motor B is hidden · + Show" bar brings it back (or use Settings → Motors).
+- **Code**: Scratch-style blocks (motor, stop motors, wait, repeat, note, song). Tap a coloured block to add it; tap a block in your program to move, copy or delete it. A selected *repeat* takes new blocks inside it. ▶ runs the whole program, the green ▶ on a selected block runs just that block.
 
-The diagonal-arrows button in the top-right corner switches to full screen (where the browser supports it).
+The diagonal-arrows button at the bottom of the rail, just above the gear, switches to full screen (where the browser supports it).
 
 **Install as an app:** it's a PWA. Use Settings → App → *Install app* (or the browser menu → *Install app* / *Add to Home screen*). Once installed or visited, it opens without internet; you still need Bluetooth, of course.
-- **Settings**: hub and channel, per-motor tuning (spin the other way, top speed, dead zone), connection options, and under **Developer** the probe console used to discover the protocol.
+- **Settings**: open by **pressing and holding the gear** at the bottom of the rail for 1.5 s (a quick tap only shows a hint; Enter on a keyboard opens it directly). Hub and channel, per-motor tuning (show/hide, spin the other way, top speed, dead zone), connection options, install, and under **Developer** the probe console used to discover the protocol. **Done** goes back; the app never reopens into Settings.
 
 **Connecting:** tap the button at the top. Chrome asks you to pick the hub the first time. After that the button reconnects without the picker. Dropped connections are retried automatically, and where Chrome remembers the hub from a previous visit, the page connects by itself when it opens.
 
@@ -42,6 +42,7 @@ index.html, css/, js/      the site (static, no build step); js/ holds ES module
   probe.js                 developer probe console
 manifest.webmanifest, sw.js  PWA manifest and offline service worker
 icons/                     app icons (regenerate with python3 tools/make_icons.py)
+fonts/                     IBM Plex Mono, bundled for offline use (SIL OFL 1.1, fonts/OFL.txt)
 tests/                     node --test unit tests
 docs/PROTOCOL.md           everything known about the hub's protocol
 docs/PLAN.md               the original project plan
@@ -52,7 +53,7 @@ docs/PLAN.md               the original project plan
 
 Live: <https://matoussynek.github.io/cb10-playground/>
 
-Every push to `master` runs the tests and, if they pass, publishes the site (`index.html`, `manifest.webmanifest`, `sw.js`, `css/`, `js/`, `icons/`) to GitHub Pages, stamping `sw.js` with the commit so installed apps pick up the new version. Pull requests only run the tests. Pages is served over HTTPS, which Web Bluetooth requires, so the live URL works on a phone.
+Every push to `master` runs the tests and, if they pass, publishes the site (`index.html`, `manifest.webmanifest`, `sw.js`, `css/`, `js/`, `icons/`, `fonts/`) to GitHub Pages, stamping `sw.js` with the commit so installed apps pick up the new version. Pull requests only run the tests. Pages is served over HTTPS, which Web Bluetooth requires, so the live URL works on a phone.
 
 One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**. A run can also be started by hand from the Actions tab (*Test and deploy to GitHub Pages* → *Run workflow*).
 
@@ -64,7 +65,7 @@ On Android, Bluetooth **and** Location must be on for the device picker to find 
 
 ## Safety
 
-- The red **STOP** in the header (and **STOP** on the Drive screen, or Space) halts a running program or sweep, drops queued commands, and sends a stop frame on all four channels, starting with the selected one.
+- The round red **STOP** in the top bar (or Space) is the one stop button, on every screen. It halts a running program or sweep, drops queued commands, and sends a stop frame on all four channels, starting with the selected one.
 - The same happens before Disconnect and whenever the page is hidden or closed. Hold buttons stop the motor when your finger lifts or slides off. This is best effort: once the connection is gone, nothing can be sent, and the hub probably keeps running its last command. Keep the hub's power switch within reach.
 - Programs only run while the page is in the foreground; hiding the page stops the program and the motors.
 - On connect, the app sends one stop frame per channel to find the hub's channel (like the official app). Turn this off in Settings if you don't want it.
