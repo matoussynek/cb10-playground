@@ -122,11 +122,11 @@ export function normalizeStep(s, depth = 0) {
 
 export function normalizeProgram(p) {
   const steps = Array.isArray(p?.steps) ? p.steps : Array.isArray(p) ? p : [];
-  return { steps: steps.map(s => normalizeStep(s)).filter(Boolean) };
+  return { loop: p?.loop === true, steps: steps.map(s => normalizeStep(s)).filter(Boolean) };
 }
 
 const strip = steps => steps.map(({ id, ...rest }) => (rest.type === 'repeat' ? { ...rest, steps: strip(rest.steps) } : rest));
-export const serialize = program => ({ version: 1, steps: strip(program.steps) });
+export const serialize = program => ({ version: 1, loop: !!program.loop, steps: strip(program.steps) });
 
 // ---------- executor ----------
 
@@ -184,25 +184,30 @@ function h(tag, props = {}, ...children) {
 }
 
 const ICONS = {
-  run: '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 5.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>',
+  run: '<path d="M12 1.5a10.5 10.5 0 1 0 0 21 10.5 10.5 0 0 0 0-21zm0 3a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15z"/><path d="M10.8 4h2.4v16h-2.4zM4 10.8h16v2.4H4z"/><circle cx="12" cy="12" r="3"/>',
   stop: '<rect x="5" y="5" width="14" height="14" rx="3"/>',
-  wait: '<path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm1.2 4v5.1l3.6 2.2-1.2 2-4.8-2.9V6.5z"/>',
+  wait: '<path d="M5 2h14v2.5h-1.5v2.2c0 1.8-1.4 3.6-3.6 5.3 2.2 1.7 3.6 3.5 3.6 5.3v2.2H19V22H5v-2.5h1.5v-2.2c0-1.8 1.4-3.6 3.6-5.3C7.9 10.3 6.5 8.5 6.5 6.7V4.5H5zm4 2.5v2.2c0 .5.4 1.4 1.6 2.3h2.8c1.2-.9 1.6-1.8 1.6-2.3V4.5zm3 9.3c-1.9 1.4-3 2.6-3 3.5v2.2h6v-2.2c0-.9-1.1-2.1-3-3.5z"/>',
+  time: '<path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm1.2 4v5.1l3.6 2.2-1.2 2-4.8-2.9V6.5z"/>',
+  speed: '<path d="M12 4C6.5 4 2 8.5 2 14c0 1.9.5 3.6 1.4 5.1l2.1-1.2A7.6 7.6 0 0 1 4.4 14a7.6 7.6 0 0 1 15.2 0c0 1.4-.4 2.7-1.1 3.9l2.1 1.2c.9-1.5 1.4-3.2 1.4-5.1 0-5.5-4.5-10-10-10zm4.6 4.7-4.1 3.8a2 2 0 1 0 1.3 1.4z"/>',
+  loop: '<path d="M7 7.5a4.5 4.5 0 1 0 0 9c1.8 0 3-1.1 5-4.5 2-3.4 3.2-4.5 5-4.5a4.5 4.5 0 1 1 0 9c-1.8 0-3-1.1-5-4.5-2-3.4-3.2-4.5-5-4.5z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
   repeat: '<path d="M7 7h9V4l5 4.5-5 4.5v-3H8v3H5V9a2 2 0 0 1 2-2zm10 10H8v3l-5-4.5L8 11v3h8v-3h3v4a2 2 0 0 1-2 2z"/>',
   tone: '<path d="M10 3h9v4h-6v10a4 4 0 1 1-3-3.9z"/>',
   song: '<path d="M8 4l12-2v13a3.5 3.5 0 1 1-2.5-3.4V6.3L10 7.6V17a3.5 3.5 0 1 1-2-3.2z"/>',
   flag: '<path d="M5 2h2v20H5zM8 3h11l-2.5 4L19 11H8z"/>',
 };
-const icon = name => h('span', { class: 'bicon-wrap', 'aria-hidden': 'true', html: `<svg class="bicon" viewBox="0 0 24 24">${ICONS[name]}</svg>` });
+const icon = (name, cls = '') => h('span', { class: `bicon-wrap ${cls}`, 'aria-hidden': 'true', html: `<svg class="bicon" viewBox="0 0 24 24">${ICONS[name]}</svg>` });
 
 const CATEGORY = { run: 'motion', stop: 'motion', wait: 'control', repeat: 'control', tone: 'sound', song: 'sound' };
 const PALETTE = [['run', 'motor'], ['stop', 'stop motors'], ['wait', 'wait'], ['repeat', 'repeat'], ['tone', 'note'], ['song', 'song']];
 
-export function createProgramEditor(ble, motors) {
+// kids: blocks show pictures instead of words (the words stay as aria-labels).
+export function createProgramEditor(ble, motors, { kids = false } = {}) {
   const audio = createAudio();
   let program = normalizeProgram(loadJSON(STORE.current, null) || { steps: [makeStep('run'), makeStep('tone')] });
   let ctl = null;
   let wakeLock = null;
   let selectedId = null;
+  let staleLook = false;
   const scriptEl = $('progSteps');
 
   const save = () => saveJSON(STORE.current, serialize(program));
@@ -239,9 +244,13 @@ export function createProgramEditor(ble, motors) {
     return el;
   }
 
+  // A word between the fields, or in the kids' look a small picture (or nothing).
+  const word = (text, pic) => (kids ? pic && icon(pic, 'unit') : text);
+
   function runFields(s) {
     const mag = { value: Math.abs(s.speed) };
-    const dir = selField(s.speed < 0 ? 'back' : 'fwd', [['fwd', 'forward'], ['back', 'backward']], 'Direction', v => {
+    const dirs = kids ? [['fwd', '\u2191'], ['back', '\u2193']] : [['fwd', 'forward'], ['back', 'backward']];
+    const dir = selField(s.speed < 0 ? 'back' : 'fwd', dirs, 'Direction', v => {
       s.speed = (v === 'back' ? -1 : 1) * Math.abs(s.speed);
     });
     const speed = h('input', {
@@ -254,20 +263,21 @@ export function createProgramEditor(ble, motors) {
       },
     });
     return [
-      'motor',
+      word('motor'),
       selField(s.motor, [['A', 'A'], ['B', 'B'], ['both', 'A+B']], 'Motor', v => { s.motor = v; }),
-      dir, 'speed', speed, 'for', numField(s, 'duration', { min: 0, max: 60, inc: 0.5, label: 'Seconds' }), 'sec',
+      dir, word('speed', 'speed'), speed, word('for', 'time'), numField(s, 'duration', { min: 0, max: 60, inc: 0.5, label: 'Seconds' }), word('sec'),
     ];
   }
 
   function blockBody(s) {
+    const secs = (key, max, inc) => numField(s, key, { min: key === 'seconds' ? 0 : 0.05, max, inc, label: 'Seconds' });
     switch (s.type) {
       case 'run': return runFields(s);
-      case 'stop': return ['stop motors'];
-      case 'wait': return ['wait', numField(s, 'seconds', { min: 0, max: 60, inc: 0.5, label: 'Seconds' }), 'sec'];
-      case 'repeat': return ['repeat', numField(s, 'times', { min: 1, max: 99, label: 'Times' }), 'times'];
-      case 'tone': return ['play note', selField(s.note, NOTES.map(n => [n, n]), 'Note', v => { s.note = v; }), 'for', numField(s, 'duration', { min: 0.05, max: 10, inc: 0.25, label: 'Seconds' }), 'sec'];
-      case 'song': return ['play song', selField(s.song, Object.entries(SONGS).map(([k, v]) => [k, v.name]), 'Song', v => { s.song = Number(v); })];
+      case 'stop': return [word('stop motors')];
+      case 'wait': return [word('wait'), secs('seconds', 60, 0.5), word('sec')];
+      case 'repeat': return [word('repeat'), numField(s, 'times', { min: 1, max: 99, label: 'Times' }), kids ? '\u00d7' : 'times'];
+      case 'tone': return [word('play note'), selField(s.note, NOTES.map(n => [n, n]), 'Note', v => { s.note = v; }), word('for', 'time'), secs('duration', 10, 0.25), word('sec')];
+      case 'song': return [word('play song'), selField(s.song, Object.entries(SONGS).map(([k, v]) => [k, v.name]), 'Song', v => { s.song = Number(v); })];
       default: return [];
     }
   }
@@ -276,12 +286,12 @@ export function createProgramEditor(ble, motors) {
 
   function blockEl(s, depth) {
     const cat = `cat-${CATEGORY[s.type]}`;
-    const head = h('div', { class: `block ${cat}${s.type === 'repeat' ? ' c-head' : ''}` }, icon(s.type), blockBody(s));
+    const head = h('div', { class: `block ${cat}${s.type === 'repeat' ? ' c-head' : ''}`, 'aria-label': STEP_TYPES[s.type] }, icon(s.type), blockBody(s));
     const wrap = h('div', { class: 'bwrap', 'data-id': s.id });
     const grab = e => startPending(e, { kind: 'move', id: s.id });
     if (s.type === 'repeat') {
       const body = h('div', { class: `c-body ${cat}`, 'data-list': s.id },
-        s.steps.length ? s.steps.map(c => blockEl(c, depth + 1)) : h('div', { class: 'empty' }, 'Drop blocks in here'));
+        s.steps.length ? s.steps.map(c => blockEl(c, depth + 1)) : h('div', { class: 'empty' }, kids ? '\u2193' : 'Drop blocks in here'));
       const foot = h('div', { class: `c-foot ${cat}` });
       wrap.append(h('div', { class: 'c-block' }, head, body, foot));
       // Tapping anywhere on the repeat (its arm, foot or empty inside) selects it.
@@ -325,15 +335,23 @@ export function createProgramEditor(ble, motors) {
     const wrap = id && scriptEl.querySelector(`.bwrap[data-id="${id}"]`);
     if (!wrap) return;
     wrap.classList.add('selected');
-    const head = wrap.querySelector(':scope > .block, :scope > .c-block > .c-head');
-    head.after(toolbar());
+    const bar = toolbar();
+    wrap.append(bar);
+    // The bubble may stick out past the program area, but not off the screen.
+    const over = bar.getBoundingClientRect().right - (document.documentElement.clientWidth - 4);
+    if (over > 0) bar.style.setProperty('--nudge', `${-over}px`);
+  }
+
+  function hat() {
+    return h('div', { class: 'block hat cat-event' }, icon('flag'), word('when'), h('span', { class: 'flag-chip', 'aria-label': 'Run' }, '▶'), word('is tapped'),
+      program.loop && h('span', { class: 'loop-chip', 'aria-label': 'over and over' }, icon('loop'), word('forever')));
   }
 
   function render() {
     const keep = selectedId;
     selectedId = null;
     scriptEl.replaceChildren(
-      h('div', { class: 'block hat cat-event' }, icon('flag'), 'when', h('span', { class: 'flag-chip', 'aria-label': 'Run' }, '▶'), 'is tapped'),
+      hat(),
       h('div', { class: 'stack', 'data-list': 'root' },
         program.steps.length ? program.steps.map(s => blockEl(s, 0)) : h('p', { class: 'hint' }, 'Drag a coloured block here, or tap one above.')),
     );
@@ -343,6 +361,7 @@ export function createProgramEditor(ble, motors) {
   function changed() {
     save();
     render();
+    $('progLoop').setAttribute('aria-pressed', String(program.loop));
   }
 
   function move(d) {
@@ -395,13 +414,15 @@ export function createProgramEditor(ble, motors) {
     scriptEl.querySelector(`.bwrap[data-id="${step.id}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  $('palette').replaceChildren(...PALETTE.map(([type, label]) => {
-    const btn = h('button', {
-      type: 'button', class: `pblock cat-${CATEGORY[type]}`, 'aria-label': `Add ${label} block`, onclick: () => add(type),
-    }, icon(type), label);
-    btn.addEventListener('pointerdown', e => startPending(e, { kind: 'new', type, el: btn }));
-    return btn;
-  }));
+  function renderPalette() {
+    $('palette').replaceChildren(...PALETTE.map(([type, label]) => {
+      const btn = h('button', {
+        type: 'button', class: `pblock cat-${CATEGORY[type]}`, 'aria-label': `Add ${label} block`, title: label, onclick: () => add(type),
+      }, icon(type), word(label));
+      btn.addEventListener('pointerdown', e => startPending(e, { kind: 'new', type, el: btn }));
+      return btn;
+    }));
+  }
 
   // ----- drag and drop -----
   // Mouse: drag after a few pixels. Touch on the script: press and hold, so a swipe still scrolls.
@@ -596,6 +617,17 @@ export function createProgramEditor(ble, motors) {
     $('progStatus').textContent = status;
   }
 
+  // Stays usable during a run: switching it off lets the current round finish, then the run ends.
+  function renderLoop() {
+    $('progLoop').setAttribute('aria-pressed', String(program.loop));
+    scriptEl.firstElementChild?.replaceWith(hat());
+  }
+  $('progLoop').addEventListener('click', () => {
+    program.loop = !program.loop;
+    save();
+    renderLoop();
+  });
+
   async function requestWakeLock() {
     try {
       wakeLock = await navigator.wakeLock?.request('screen');
@@ -612,15 +644,24 @@ export function createProgramEditor(ble, motors) {
     if (!single) select(null);
     ctl = new AbortController();
     const { signal } = ctl;
-    const what = single ? 'Running one block' : 'Running';
-    setRunning(true, ble.state === 'connected' ? `${what}…` : `${what} (no hub: motors stay still)`);
+    const what = kids ? '▶' : single ? 'Running one block' : 'Running';
+    const noHub = ble.state === 'connected' ? '' : kids ? ' (no hub)' : ' (no hub: motors stay still)';
+    const looping = () => !single && program.loop && program.steps.length > 0;
+    setRunning(true, `${what}${kids ? '' : '…'}${noHub}`);
     await requestWakeLock();
-    let status = 'Done!';
+    let status = kids ? '✓' : 'Done!';
     try {
-      await runSteps(steps, { motors, audio, signal, onStep: highlight });
+      for (let round = 1; ; round++) {
+        if (round > 1) $('progStatus').textContent = `${what}${kids ? ' ' : ' · round '}${round}${noHub}`;
+        const t0 = performance.now();
+        await runSteps(steps, { motors, audio, signal, onStep: highlight });
+        if (!looping()) break;
+        // A program without any waits would otherwise spin as fast as it can.
+        await sleep(Math.max(0, 250 - (performance.now() - t0)), signal);
+      }
       motors.set({ A: 0, B: 0 });
     } catch (e) {
-      status = signal.aborted ? 'Stopped' : `Oops: ${e.message}`;
+      status = signal.aborted ? (kids ? '■' : 'Stopped') : `Oops: ${e.message}`;
       if (!signal.aborted) motors.stopAll('program error');
     } finally {
       ctl = null;
@@ -628,6 +669,7 @@ export function createProgramEditor(ble, motors) {
       highlight(null);
       wakeLock?.release().catch(() => {});
       wakeLock = null;
+      if (staleLook) rerender();
       setRunning(false, status);
     }
   }
@@ -682,7 +724,7 @@ export function createProgramEditor(ble, motors) {
   });
   $('progNew').addEventListener('click', () => {
     if (ctl || (program.steps.length && !confirm('Start a new empty program?'))) return;
-    program = { steps: [] };
+    program = { loop: false, steps: [] };
     selectedId = null;
     $('progName').value = '';
     changed();
@@ -712,8 +754,22 @@ export function createProgramEditor(ble, motors) {
 
   $('progRun').addEventListener('click', () => run());
 
+  // Re-renders without losing the program; a run in progress keeps its look (and highlight) until it ends.
+  function setKids(on) {
+    kids = !!on;
+    if (ctl) staleLook = true;
+    else rerender();
+  }
+  function rerender() {
+    staleLook = false;
+    renderPalette();
+    render();
+  }
+
+  renderPalette();
   render();
+  renderLoop();
   renderSaved();
   setRunning(false, '');
-  return { abort, get running() { return !!ctl; } };
+  return { abort, setKids, get running() { return !!ctl; } };
 }

@@ -171,6 +171,7 @@ const fmt = v => (v > 0 ? `+${v}` : String(v));
 const ARROW_UP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 11h-6v5H9v-5H3z"/></svg>';
 const ARROW_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20l9-11h-6V4H9v5H3z"/></svg>';
 const EYE_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c5 0 8.5 4.3 9.5 6-.5.9-1.6 2.4-3.1 3.7M6.3 7.6C4.4 8.9 3.1 10.8 2.5 12c1 1.7 4.5 6 9.5 6 1.6 0 3-.4 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>';
 const PAD = 18; // half the thumb height, so both ends stay reachable
 
 // Big vertical slider, -100 (bottom) … +100 (top), 0 in the middle.
@@ -217,6 +218,7 @@ function vslider(label, onValue, onRelease) {
     thumb.style.top = `calc(${PAD}px + ${span} * ${pos})`;
     fill.style.top = `calc(${PAD}px + ${span} * ${Math.min(pos, 0.5)})`;
     fill.style.height = `calc(${span} * ${Math.abs(pos - 0.5)})`;
+    thumb.textContent = fmt(v);
     el.setAttribute('aria-valuenow', String(v));
     el.setAttribute('aria-valuetext', `${fmt(v)} percent`);
   }
@@ -249,7 +251,6 @@ export function createControlPanel(ble, motors, { isActive }) {
   const holding = new Set();
 
   for (const m of MOTORS) {
-    const readout = h('output', { class: 'display', 'aria-label': `Motor ${m} speed` }, '0');
     const slider = vslider(`Motor ${m} speed`, v => motors.set({ [m]: v }), () => {
       if (motors.cfg.springBack) motors.set({ [m]: 0 });
     });
@@ -263,14 +264,14 @@ export function createControlPanel(ble, motors, { isActive }) {
       },
     });
     const restore = h('button', {
-      type: 'button', class: 'mrestore', 'data-motor': m, hidden: true,
+      type: 'button', class: 'mrestore', 'data-motor': m, hidden: true, 'aria-label': `Show motor ${m}`, title: `Show motor ${m}`,
       onclick: () => motors.configure(m, { hidden: false }),
-    }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), h('span', {}, `Motor ${m} is hidden`), h('span', { class: 'mrestore-show' }, '+ Show'));
+    }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), h('span', { class: 'mrestore-plus', html: PLUS }));
     drive[m] = {
       el: h('div', { class: 'mcol', 'data-motor': m },
-        h('div', { class: 'mhead' }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), readout, hideBtn),
+        h('div', { class: 'mhead' }, h('span', { class: 'mbadge', 'aria-hidden': 'true' }, m), hideBtn),
         up, slider.el, down),
-      readout, slider, holds: [up, down], hideBtn, restore,
+      slider, holds: [up, down], hideBtn, restore,
     };
 
     const invert = h('input', { type: 'checkbox', onchange: e => motors.configure(m, { invert: e.target.checked }) });
@@ -309,7 +310,6 @@ export function createControlPanel(ble, motors, { isActive }) {
     const live = ble.state === 'connected';
     for (const m of MOTORS) {
       const v = motors.speeds[m];
-      drive[m].readout.textContent = fmt(v);
       drive[m].slider.set(v);
       drive[m].el.classList.toggle('off', !live);
       const c = motors.cfg[m];
@@ -325,7 +325,7 @@ export function createControlPanel(ble, motors, { isActive }) {
       sets[m].shown.checked = !c.hidden;
       sets[m].shown.disabled = onlyOne;
     }
-    $('motorPanels').classList.toggle('single', MOTORS.some(m => motors.cfg[m].hidden));
+    $('motorPanels').dataset.hidden = MOTORS.find(m => motors.cfg[m].hidden) ?? '';
     [...chButtons.children].forEach((b, i) => b.setAttribute('aria-pressed', String(CHANNELS[i] === motors.cfg.channel)));
     $('autoDetect').checked = motors.cfg.autoDetect;
     $('springBack').checked = motors.cfg.springBack;

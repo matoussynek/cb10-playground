@@ -59,3 +59,11 @@ test('runSteps aborts mid-step', async () => {
   assert.ok(Date.now() - t0 < 500);
   assert.deepEqual(motors.calls, [{ A: 50 }]);
 });
+
+test('the loop flag survives saving and defaults to off', () => {
+  assert.equal(normalizeProgram({ steps: [] }).loop, false);
+  assert.equal(normalizeProgram({ loop: 'yes', steps: [] }).loop, false);
+  const p = normalizeProgram({ loop: true, steps: [{ type: 'stop' }] });
+  assert.equal(serialize(p).loop, true);
+  assert.equal(normalizeProgram(serialize(p)).loop, true);
+});

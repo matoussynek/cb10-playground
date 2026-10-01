@@ -32,7 +32,7 @@
   --red-dark: #9d3530;
   --accent: #f28c28; /* tangerine: the UI accent; ink text on it */
   --accent-dark: #c76f16;
-  --rail-w: 68px;
+  --rail-w: 88px;
   --font: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --radius: 14px;
@@ -114,10 +114,9 @@ h3.label { margin-top: 18px; }
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 0 var(--red-dark);
 }
 .stop-round svg { width: 30px; height: 30px; fill: currentColor; }
-.stop-round:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--red-dark); }
+.stop-round:active { filter: brightness(0.92); }
 
 .mock-banner {
   display: flex;
@@ -189,22 +188,19 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   color: var(--ink);
   font: 800 1rem var(--font);
   cursor: pointer;
-  box-shadow: 0 4px 0 var(--line);
   user-select: none;
   -webkit-user-select: none;
 }
 .key svg { width: 26px; height: 26px; fill: currentColor; flex: none; }
-.key:active:not(:disabled), .key.active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.key:active:not(:disabled), .key.active { filter: brightness(0.92); }
 .key:disabled { opacity: 0.4; cursor: not-allowed; }
-.key-blue { background: var(--blue); color: #fff; box-shadow: 0 4px 0 var(--blue-dark); }
-.key-accent { background: var(--accent); color: var(--ink); box-shadow: 0 4px 0 var(--accent-dark); }
-.key-accent:active { box-shadow: none; }
-.key-small.key-accent { background: var(--accent); box-shadow: 0 3px 0 var(--accent-dark); }
-.key-green { background: var(--green); color: #fff; box-shadow: 0 4px 0 var(--green-dark); }
-.key-red { background: var(--red); color: #fff; box-shadow: 0 4px 0 var(--red-dark); }
-.key-blue:active, .key-green:active, .key-red:active { box-shadow: none; }
+.key-blue { background: var(--blue); color: #fff; }
+.key-accent { background: var(--accent); color: var(--ink); }
+.key-small.key-accent { background: var(--accent); }
+.key-green { background: var(--green); color: #fff; }
+.key-red { background: var(--red); color: #fff; }
 .key-wide { width: 100%; min-height: 64px; font-size: 1.25rem; letter-spacing: 0.06em; }
-.key-small { min-height: 44px; padding: 0 14px; font-size: 0.9rem; box-shadow: 0 3px 0 var(--line); background: var(--chassis); }
+.key-small { min-height: 44px; padding: 0 14px; font-size: 0.9rem; background: var(--chassis); }
 .card .key-small { background: var(--chassis); }
 .chip { border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(255, 255, 255, 0.25); color: inherit; font-weight: 700; cursor: pointer; }
 
@@ -244,7 +240,6 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   border-radius: 16px;
   background: var(--c);
   color: #fff;
-  box-shadow: 0 5px 0 var(--c-dark);
   cursor: pointer;
   display: grid;
   place-items: center;
@@ -254,7 +249,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   -webkit-touch-callout: none;
 }
 .hold svg { width: 38px; height: 38px; fill: currentColor; }
-.hold.active { transform: translateY(4px); box-shadow: 0 1px 0 var(--c-dark); filter: brightness(1.08); }
+.hold.active { filter: brightness(0.92); }
 
 /* custom vertical slider (div-based so it can be big and work the same everywhere) */
 .vs {
@@ -276,7 +271,6 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   transform: translate(-50%, -50%);
   border-radius: 12px;
   background: var(--ink);
-  box-shadow: 0 3px 0 #000;
 }
 .vs-thumb::after { content: ""; position: absolute; left: 14px; right: 14px; top: 50%; height: 3px; transform: translateY(-50%); background: var(--c); border-radius: 2px; }
 .vs:focus-visible { outline-offset: 4px; }
@@ -299,9 +293,8 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 3px 0 var(--d);
 }
-.pblock:active { transform: translateY(2px); box-shadow: none; }
+.pblock:active { filter: brightness(0.92); }
 .pblock:disabled { opacity: 0.4; }
 
 .cat-motion { --b: var(--blue); --d: var(--blue-dark); background: var(--blue); color: #fff; }
@@ -323,7 +316,6 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 8px;
-  box-shadow: 0 3px 0 var(--d);
   cursor: pointer;
   min-height: 52px;
 }
@@ -369,20 +361,21 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 .script .cat-control select { color: var(--ink); }
 
 .c-block { display: grid; position: relative; }
-.c-head { border-radius: 12px 12px 0 0; box-shadow: none; }
+.c-head { border-radius: 12px 12px 0 0; }
 .c-head::after { left: 34px; bottom: -7px; }
 .c-body { border-left: 18px solid var(--b); padding: 6px 0 6px 6px; min-height: 30px; display: grid; gap: 6px; }
 .c-body .empty { color: var(--muted); font-size: 0.85rem; padding: 6px; font-weight: 700; }
-.c-foot { position: relative; height: 22px; border-radius: 0 0 12px 12px; background: var(--b); box-shadow: 0 3px 0 var(--d); }
+.c-foot { position: relative; height: 22px; border-radius: 0 0 12px 12px; background: var(--b); }
 
-.bwrap.selected > .block, .bwrap.selected > .c-block > .c-head { outline: 3px solid var(--ink); outline-offset: 2px; }
-.bwrap.running > .block, .bwrap.running > .c-block > .c-head { outline: 4px solid var(--yellow); outline-offset: 2px; box-shadow: 0 0 0 9px rgba(229, 194, 92, 0.4); }
+/* Selected and running blocks grow instead of getting an outline: the neighbours' puzzle tabs stay visible.
+   The selected block's own tab is hidden; the toolbar sits right under it. */
+.block, .c-head { transition: transform 0.12s ease-out; }
+.bwrap.selected > .block, .bwrap.selected > .c-block > .c-head, .bwrap.running > .block, .bwrap.running > .c-block > .c-head { transform: scale(1.07); }
+.bwrap.selected > .block::after, .bwrap.selected > .c-block > .c-head::after { display: none; }
 .bicon-wrap { display: inline-flex; }
 .flag-chip { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--green); color: #fff; font-size: 0.9rem; }
 .c-block .c-body { background: none; color: var(--ink); }
 
-.toolbar { display: flex; gap: 6px; justify-content: flex-end; margin: 2px 0 4px; }
-.toolbar .key { min-height: 40px; min-width: 44px; padding: 0 10px; font-size: 1rem; }
 .editor:disabled .toolbar { display: none; }
 
 .saved-list { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -475,7 +468,6 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
   background: var(--chassis);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 0 var(--line);
 }
 .probe button:disabled { opacity: 0.4; cursor: not-allowed; }
 .probe button[aria-pressed="true"] { background: var(--yellow); }
@@ -556,7 +548,7 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 
 /* Keep the bar and banner in the same centred column as the content on wide screens. */
 .bar { padding-left: max(16px, calc(50% - 344px)); padding-right: max(16px, calc(50% - 344px)); }
-.mock-banner, .toast { max-width: 688px; margin-left: auto; margin-right: auto; }
+.mock-banner, .toast { margin-left: max(16px, calc(50% - 344px)); margin-right: max(16px, calc(50% - 344px)); }
 
 /* ---------- drag and drop ---------- */
 .pblock { touch-action: none; }
@@ -602,11 +594,10 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--line);
 }
 .icon-btn[hidden] { display: none; }
 .icon-btn svg { width: 24px; height: 24px; }
-.icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+.icon-btn:active { filter: brightness(0.92); }
 .toolbar .key-green svg { width: 20px; height: 20px; }
 
 /* ---------- hide a motor ---------- */
@@ -625,30 +616,39 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 }
 .hide-btn svg { width: 22px; height: 22px; }
 .hide-btn:disabled { visibility: hidden; }
-.drive.single { grid-template-columns: minmax(0, 360px); justify-content: center; }
 .mrestore {
-  grid-column: 1 / -1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  min-height: 60px;
-  padding: 8px 14px;
+  align-self: center;
+  gap: 10px;
+  padding: 10px 0 12px;
   border: 3px dashed var(--line);
-  border-radius: 16px;
+  border-radius: 20px;
   background: transparent;
-  color: var(--ink);
-  font: 800 1rem var(--font);
+  color: var(--muted);
   cursor: pointer;
-  text-align: left;
 }
 .mrestore .mbadge { width: 36px; height: 36px; font-size: 1.1rem; background: var(--blue); opacity: 0.6; }
 .mrestore[data-motor="B"] .mbadge { background: var(--green); }
-.mrestore span:nth-child(2) { flex: 1; color: var(--muted); }
-.mrestore-show { padding: 8px 14px; border-radius: 999px; background: var(--ink); color: var(--display-ink); }
+.mrestore-plus { display: grid; place-items: center; }
+.mrestore-plus svg { width: 30px; height: 30px; }
+/* A hidden motor leaves a small tile in its own column (A left, B right), level with the middle of the other motor. */
+.mcol[data-motor="A"], .mrestore[data-motor="A"] { grid-column: 1; grid-row: 1; }
+.mcol[data-motor="B"], .mrestore[data-motor="B"] { grid-column: 2; grid-row: 1; }
+.drive[data-hidden="A"] { grid-template-columns: 64px minmax(0, 1fr); }
+.drive[data-hidden="B"] { grid-template-columns: minmax(0, 1fr) 64px; }
+/* One motor gets the full width, so its arrow keys get taller too or they read as thin strips. */
+@media not all and (orientation: landscape) and (max-height: 520px) {
+  .drive:is([data-hidden="A"], [data-hidden="B"]) .hold { min-height: 124px; }
+  .drive:is([data-hidden="A"], [data-hidden="B"]) .hold svg { width: 52px; height: 52px; }
+}
 
 /* Fullscreen sits at the bottom of the rail with the settings gear, away from STOP. */
-.rail .icon-btn { width: 44px; height: 44px; background: transparent; box-shadow: none; color: var(--muted); }
-.rail .icon-btn:hover { color: var(--ink); }
+/* Same quiet grey as the settings gear: both are grown-up tools. */
+.rail .icon-btn { width: 44px; height: 44px; background: transparent; color: #b2b1aa; }
+.rail .icon-btn:hover { color: var(--muted); }
+.rail .icon-btn svg { width: 22px; height: 22px; }
 
 /* ---------- left rail: two big mode icons for kids, a hold-to-open gear for grown-ups ---------- */
 .rail {
@@ -667,20 +667,21 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
   border-right: 1px solid var(--line);
 }
 .rail .brand { font-size: 0.8rem; letter-spacing: 0; }
-.rail-modes { display: grid; gap: 12px; }
+.rail-modes { display: grid; gap: 18px; }
+/* Kids pick the mode here, so these are big keys: white when off, tangerine when on. */
 .rail-modes button {
-  width: 52px;
-  height: 52px;
+  width: 68px;
+  height: 68px;
   border: 0;
-  border-radius: 16px;
-  background: transparent;
-  color: var(--muted);
+  border-radius: 20px;
+  background: var(--key);
+  color: var(--ink);
   display: grid;
   place-items: center;
   cursor: pointer;
 }
-.rail-modes svg { width: 32px; height: 32px; }
-.rail-modes button:hover { color: var(--ink); }
+.rail-modes svg { width: 40px; height: 40px; }
+.rail-modes button:active { filter: brightness(0.92); }
 .rail-modes button[aria-selected="true"] { background: var(--accent); color: var(--ink); }
 .rail-tools { margin-top: auto; display: grid; justify-items: center; gap: 10px; }
 .rail-settings {
@@ -710,7 +711,6 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 
 /* With the rail taking width, let the two motor columns shrink and keep their headers compact. */
 .drive { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.drive.single { grid-template-columns: minmax(0, 360px); }
 .mhead { gap: 6px; min-width: 0; }
 .mhead .display { min-width: 0; }
 @media (max-width: 420px) {
@@ -728,7 +728,9 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 @media (orientation: landscape) and (max-height: 520px) {
   .bar { padding-top: max(6px, env(safe-area-inset-top)); padding-bottom: 6px; }
   .rail { gap: 10px; padding-top: max(8px, env(safe-area-inset-top)); }
-  .rail-modes { gap: 8px; }
+  .rail-modes { gap: 12px; }
+  .rail-modes button { width: 60px; height: 60px; }
+  .rail-modes svg { width: 34px; height: 34px; }
   .mcol {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "head head" "up slider" "down slider";
@@ -742,3 +744,104 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
   .hold { min-height: 64px; }
   .key-wide { min-height: 52px; }
 }
+
+/* ---------- loop ---------- */
+.runbar .loop-key { width: 64px; color: var(--muted); }
+.runbar .loop-key svg { width: 34px; height: 34px; fill: none; }
+.loop-key[aria-pressed="true"] { background: var(--accent); color: var(--ink); }
+.loop-chip { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 4px 12px; border-radius: 999px; background: var(--accent); color: var(--ink); }
+.loop-chip .bicon { fill: none; }
+
+/* ---------- block look: words (grown-ups) or pictures (kids) ---------- */
+.segmented.look button { padding: 0 16px; font-size: 0.95rem; }
+.block .unit .bicon { width: 18px; height: 18px; opacity: 0.85; }
+[data-look="kids"] .words-only { display: none; }
+[data-look="kids"] .palette { gap: 10px; }
+[data-look="kids"] .pblock { width: 64px; height: 64px; padding: 0; justify-content: center; border-radius: 16px; }
+[data-look="kids"] .pblock .bicon { width: 34px; height: 34px; }
+[data-look="kids"] .block .bicon-wrap:first-child .bicon { width: 32px; height: 32px; }
+[data-look="kids"] .block .unit .bicon { width: 22px; height: 22px; }
+[data-look="kids"] .script .block select { font-size: 1.15rem; }
+[data-look="kids"] .c-body .empty { font-size: 1.4rem; text-align: center; }
+[data-look="kids"] .palette.trash::after { content: "\2715"; font-size: 2rem; }
+
+/* A select is as wide as its longest option ("Mary Had a Little Lamb"); keep it inside the block on phones. */
+.script, .stack, .c-body, .bwrap, .c-block { min-width: 0; }
+.script .block select { max-width: 100%; text-overflow: ellipsis; }
+
+/* ---------- fill the screen: Drive stretches to the phone's height, Code gets a workspace ---------- */
+body { display: flex; flex-direction: column; min-height: 100dvh; }
+main { flex: 1; width: 100%; display: flex; flex-direction: column; }
+.view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
+.drive { flex: 1; max-height: 900px; }
+.mcol { grid-template-rows: auto auto minmax(160px, 1fr) auto; }
+.mcol .vs { height: auto; align-self: stretch; }
+.workspace {
+  flex: 1;
+  padding: 12px 12px 4px;
+  border-radius: var(--radius);
+  background-color: rgba(28, 28, 30, 0.035);
+  background-image: radial-gradient(circle, rgba(28, 28, 30, 0.16) 1.2px, transparent 1.6px);
+  background-size: 16px 16px;
+  margin-bottom: 12px;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .mcol { grid-template-rows: auto 1fr 1fr; }
+}
+
+/* ---------- hardware details: printed captions, slider scale, speaker grille ---------- */
+.caption { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px 2px; }
+/* 21 ticks from +100 to -100, lined up with the thumb's travel (PAD in control.js) */
+.vs::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 17px;
+  bottom: 17px;
+  background: linear-gradient(var(--line) 0 2px, transparent 2px) 0 0 / 100% calc((100% - 2px) / 20) repeat-y;
+}
+.grille {
+  flex: 0 1 132px;
+  min-height: 0;
+  width: 40px;
+  margin: auto 0;
+  background-image: radial-gradient(circle, #c9c8c1 1.7px, transparent 2.1px);
+  background-size: 10px 10px;
+  background-repeat: round;
+}
+
+/* The speed reads on the slider handle, so the motor header only needs the badge and the hide button. */
+.mhead { justify-content: space-between; }
+.vs-thumb { display: grid; place-items: center; color: var(--display-ink); font: 700 0.95rem var(--mono); font-variant-numeric: tabular-nums; }
+.vs-thumb::after { content: none; }
+
+/* ---------- block controls: a bubble to the right of the selected block ---------- */
+.bwrap { position: relative; }
+.toolbar {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: calc(100% + 12px);
+  margin-left: var(--nudge, 0px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--display);
+}
+/* pointer towards the block */
+.toolbar::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 18px;
+  border: 8px solid transparent;
+  border-left: 0;
+  border-right-color: var(--display);
+}
+.toolbar .key { min-height: 44px; min-width: 44px; width: 44px; padding: 0; border-radius: 10px; background: transparent; color: var(--display-ink); }
+.toolbar .key-green { background: var(--green); color: #fff; }
+.toolbar .key:active:not(:disabled) { background: rgba(255, 255, 255, 0.14); filter: none; }
+.toolbar .key-green:active:not(:disabled) { background: var(--green-dark); }

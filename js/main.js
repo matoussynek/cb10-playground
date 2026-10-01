@@ -82,7 +82,22 @@ function init() {
 
   const probe = createProbe(ble, { mock, onError: showError });
   const motors = createMotors(ble);
-  const program = createProgramEditor(ble, motors);
+  let look = loadJSON('cb10.look', 'kids') === 'adult' ? 'adult' : 'kids';
+  document.documentElement.dataset.look = look;
+  const program = createProgramEditor(ble, motors, { kids: look === 'kids' });
+  function renderLook() {
+    for (const b of $('lookButtons').children) b.setAttribute('aria-pressed', String(b.dataset.look === look));
+  }
+  for (const b of $('lookButtons').children) {
+    b.addEventListener('click', () => {
+      look = b.dataset.look;
+      saveJSON('cb10.look', look);
+      document.documentElement.dataset.look = look;
+      program.setKids(look === 'kids');
+      renderLook();
+    });
+  }
+  renderLook();
   ble.addEventListener('error', ev => showError(ev.detail));
 
   // ---------- views ----------
