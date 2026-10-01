@@ -303,7 +303,12 @@ export function createProgramEditor(ble, motors) {
 
   function toolbar() {
     const act = fn => () => { if (!ctl) fn(); };
+    const runThis = () => {
+      const at = locate(selectedId);
+      if (at) run([at.step]);
+    };
     return h('div', { class: 'toolbar' },
+      h('button', { type: 'button', class: 'key key-green', 'aria-label': 'Run just this block', onclick: act(runThis), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>' }),
       h('button', { type: 'button', class: 'key', 'aria-label': 'Move up', onclick: act(() => move(-1)) }, '↑'),
       h('button', { type: 'button', class: 'key', 'aria-label': 'Move down', onclick: act(() => move(1)) }, '↓'),
       h('button', { type: 'button', class: 'key', 'aria-label': 'Duplicate', onclick: act(duplicate) }, '⧉'),
@@ -600,17 +605,20 @@ export function createProgramEditor(ble, motors) {
     }
   }
 
-  async function run() {
+  // Runs the whole program, or just the given steps (one block, or a repeat with its contents).
+  async function run(steps = program.steps) {
     if (ctl) return;
     audio.unlock();
-    select(null);
+    const single = steps !== program.steps;
+    if (!single) select(null);
     ctl = new AbortController();
     const { signal } = ctl;
-    setRunning(true, ble.state === 'connected' ? 'Running…' : 'Running (no hub: motors stay still)');
+    const what = single ? 'Running one block' : 'Running';
+    setRunning(true, ble.state === 'connected' ? `${what}…` : `${what} (no hub: motors stay still)`);
     await requestWakeLock();
     let status = 'Done!';
     try {
-      await runSteps(program.steps, { motors, audio, signal, onStep: highlight });
+      await runSteps(steps, { motors, audio, signal, onStep: highlight });
       motors.set({ A: 0, B: 0 });
     } catch (e) {
       status = signal.aborted ? 'Stopped' : `Oops: ${e.message}`;
@@ -707,7 +715,7 @@ export function createProgramEditor(ble, motors) {
     }
   });
 
-  $('progRun').addEventListener('click', run);
+  $('progRun').addEventListener('click', () => run());
   $('progStop').addEventListener('click', () => stop('program stop'));
 
   render();

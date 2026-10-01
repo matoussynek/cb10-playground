@@ -5,7 +5,9 @@ A static site that talks to the "CB10" Lego-WeDo-style motor hub straight from t
 Three screens, picked from the dock at the bottom:
 
 - **Drive**: a big ▲ / ▼ key and a slider for each motor (A blue, B green), plus STOP.
-- **Code**: Scratch-style blocks (motor, stop motors, wait, repeat, note, song). Tap a coloured block to add it; tap a block in your program to move, copy or delete it. A selected *repeat* takes new blocks inside it. ▶ runs, ■ stops.
+- **Code**: Scratch-style blocks (motor, stop motors, wait, repeat, note, song). Tap a coloured block to add it; tap a block in your program to move, copy or delete it. A selected *repeat* takes new blocks inside it. ▶ runs the whole program, the green ▶ on a selected block runs just that block, ■ stops.
+
+The button left of Connect switches to full screen (where the browser supports it).
 - **Settings**: hub and channel, per-motor tuning (spin the other way, top speed, dead zone), connection options, and under **Developer** the probe console used to discover the protocol.
 
 **Connecting:** tap the button at the top. Chrome asks you to pick the hub the first time. After that the button reconnects without the picker. Dropped connections are retried automatically, and where Chrome remembers the hub from a previous visit, the page connects by itself when it opens.
@@ -46,7 +48,7 @@ docs/PLAN.md               the original project plan
 
 Live: <https://matoussynek.github.io/cb10-playground/>
 
-Every push to `main` runs the tests and, if they pass, publishes `index.html`, `css/` and `js/` to GitHub Pages. Pull requests only run the tests. Pages is served over HTTPS, which Web Bluetooth requires, so the live URL works on a phone.
+Every push to `master` runs the tests and, if they pass, publishes `index.html`, `css/` and `js/` to GitHub Pages. Pull requests only run the tests. Pages is served over HTTPS, which Web Bluetooth requires, so the live URL works on a phone.
 
 One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**. A run can also be started by hand from the Actions tab (*Test and deploy to GitHub Pages* → *Run workflow*).
 

@@ -112,6 +112,26 @@ function init() {
   }
   $('panicBtn').addEventListener('click', () => stopEverything('button'));
 
+  // ---------- fullscreen ----------
+  const ICON_EXPAND = $('fullscreenBtn').innerHTML;
+  const ICON_SHRINK = ICON_EXPAND.replace(/d="[^"]+"/, 'd="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"');
+  if (document.documentElement.requestFullscreen) {
+    const fsBtn = $('fullscreenBtn');
+    const sync = () => {
+      const on = !!document.fullscreenElement;
+      fsBtn.setAttribute('aria-pressed', String(on));
+      fsBtn.setAttribute('aria-label', on ? 'Leave full screen' : 'Full screen');
+      fsBtn.innerHTML = on ? ICON_SHRINK : ICON_EXPAND;
+    };
+    fsBtn.hidden = false;
+    fsBtn.addEventListener('click', () => {
+      const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+      p.catch(() => showError(new Error("This browser won't go full screen here.")));
+    });
+    document.addEventListener('fullscreenchange', sync);
+    sync();
+  }
+
   if (mock) {
     $('mockBanner').hidden = false;
     document.title = 'Pretend hub · CB10';

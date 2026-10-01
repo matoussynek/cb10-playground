@@ -606,3 +606,24 @@ details.inner { background: var(--chassis); border-radius: 10px; padding: 0 12px
 .palette.trash-hot { outline-color: var(--red); background: rgba(200, 70, 63, 0.1); }
 .palette.trash-hot::after { color: var(--red); }
 .block-dragging .toolbar { visibility: hidden; }
+
+/* ---------- fullscreen button ---------- */
+.icon-btn {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--key);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--line);
+}
+.icon-btn[hidden] { display: none; }
+.icon-btn svg { width: 24px; height: 24px; }
+.icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+/* On narrow phones the wordmark gives its room to the connect button. */
+@media (max-width: 419px) { .brand { display: none; } }
+.toolbar .key-green svg { width: 20px; height: 20px; }
